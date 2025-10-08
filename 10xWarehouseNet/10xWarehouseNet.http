@@ -1,0 +1,6 @@
+@_10xWarehouseNet_HostAddress = http://localhost:5118
+
+GET {{_10xWarehouseNet_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
