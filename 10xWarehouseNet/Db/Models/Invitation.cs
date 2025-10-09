@@ -9,18 +9,10 @@ public class Invitation
 {
     [Key]
     public Guid Id { get; set; }
-
     public Guid OrganizationId { get; set; }
     public Organization Organization { get; set; }
+    public Guid InvitedUserId { get; set; }
 
-    public Guid? UserId { get; set; }
-    
-    [Required]
     public UserRole Role { get; set; }
-
-    [Required]
-    public string Token { get; set; }
-
-    [Required]
     public InvitationStatus Status { get; set; } = InvitationStatus.Pending;
 }

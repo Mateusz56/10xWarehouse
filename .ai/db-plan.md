@@ -24,10 +24,10 @@ This is the final database schema plan, created by analyzing the Product Require
 - **`app.invitations`**: Stores pending invitations for users to join an organization.
   - `id`: `UUID`, Primary Key (default: `gen_random_uuid()`)
   - `organization_id`: `UUID`, Foreign Key to `app.organizations(id)`, NOT NULL
-  - `user_id`: `UUID`, Foreign Key to `auth.users(id)`
+  - `invited_user_id`: `UUID`, Foreign Key to `auth.users(id)`, NOT NULL
   - `role`: `app.user_role`, NOT NULL
-  - `token`: `TEXT`, NOT NULL, UNIQUE
   - `status`: `app.invitation_status`, NOT NULL (default: `'pending'`)
+  - **Constraint**: `UNIQUE(organization_id, invited_user_id)`
 
 - **`app.warehouses`**: Stores warehouse records for an organization.
   - `id`: `UUID`, Primary Key (default: `gen_random_uuid()`)
