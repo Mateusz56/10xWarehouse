@@ -20,10 +20,6 @@ public class WarehouseDbContext(DbContextOptions<WarehouseDbContext> options) : 
 
         modelBuilder.Entity<OrganizationMember>()
             .HasKey(om => new { om.OrganizationId, om.UserId });
-
-        modelBuilder.Entity<Invitation>()
-            .HasIndex(i => i.Token)
-            .IsUnique();
             
         modelBuilder.Entity<ProductTemplate>()
             .HasIndex(pt => new { pt.OrganizationId, pt.Barcode })

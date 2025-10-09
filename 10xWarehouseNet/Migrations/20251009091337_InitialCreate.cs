@@ -34,9 +34,8 @@ namespace _10xWarehouseNet.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    InvitedUserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -256,13 +255,6 @@ namespace _10xWarehouseNet.Migrations
                 schema: "app",
                 table: "Invitations",
                 column: "OrganizationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Invitations_Token",
-                schema: "app",
-                table: "Invitations",
-                column: "Token",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Locations_OrganizationId",

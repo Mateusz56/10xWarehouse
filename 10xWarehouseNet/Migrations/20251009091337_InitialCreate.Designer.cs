@@ -12,7 +12,7 @@ using _10xWarehouseNet.Db;
 namespace _10xWarehouseNet.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    [Migration("20251008144222_InitialCreate")]
+    [Migration("20251009091337_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -62,6 +62,9 @@ namespace _10xWarehouseNet.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("InvitedUserId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
@@ -71,19 +74,9 @@ namespace _10xWarehouseNet.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrganizationId");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
 
                     b.ToTable("Invitations", "app");
                 });
