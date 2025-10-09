@@ -32,24 +32,7 @@ const { handleSubmit, isSubmitting, resetForm } = useForm({
 const onSubmit = handleSubmit(async (values) => {
   error.value = null;
   try {
-    const response = await fetch('https://localhost:7146/api/organizations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Authorization header will be needed here
-      },
-      body: JSON.stringify(values),
-    });
-
-    if (!response.ok) {
-      // A more specific error could be set here based on response.status
-      throw new Error('Failed to create organization.');
-    }
-
-    const newOrganization = await response.json() as OrganizationDto;
-
-    // On success:
-    organizationStore.addOrganization(newOrganization);
+    await organizationStore.createOrganization(values);
     uiStore.closeCreateOrganizationModal();
     resetForm();
     alert('Organization created!'); // TODO: Replace with a toast component

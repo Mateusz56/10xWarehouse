@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import {
   Dialog,
   DialogContent,
@@ -9,40 +8,43 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import CreateOrganizationForm from './CreateOrganizationForm.vue';
-import { Button } from '@/components/ui/button';
 import { useUiStore } from '@/stores/ui';
+import { Button } from '@/components/ui/button';
+import { ref } from 'vue';
 
 const uiStore = useUiStore();
 const form = ref<InstanceType<typeof CreateOrganizationForm> | null>(null);
 
-function handleOpenChange(open: boolean) {
+const handleModalUpdate = (open: boolean) => {
   if (!open) {
     uiStore.closeCreateOrganizationModal();
   }
-}
+};
 </script>
 
 <template>
-  <Dialog :open="uiStore.isCreateOrganizationModalOpen" @update:open="handleOpenChange">
-    <DialogContent>
+  <Dialog :open="uiStore.isCreateOrganizationModalOpen" @update:open="handleModalUpdate">
+    <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Create a new organization</DialogTitle>
+        <DialogTitle>Create Organization</DialogTitle>
         <DialogDescription>
           Enter a name for your new organization.
         </DialogDescription>
       </DialogHeader>
-
+      
       <CreateOrganizationForm ref="form" />
 
       <DialogFooter>
         <Button variant="outline" @click="uiStore.closeCreateOrganizationModal()">
           Cancel
         </Button>
-        <Button
-          @click="form?.onSubmit"
+        <Button 
+          type="submit" 
           :disabled="form?.isSubmitting"
+          @click="form?.onSubmit"
         >
-          {{ form?.isSubmitting ? 'Creating...' : 'Create' }}
+          <span v-if="form?.isSubmitting">Creating...</span>
+          <span v-else>Create</span>
         </Button>
       </DialogFooter>
     </DialogContent>
