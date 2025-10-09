@@ -23,13 +23,13 @@ For backend:
 - `./10xWarehouseNet/Dtos` - dto object for api
 
 For frontend:
-- `.10xWarehouseAstro/vue/src` - source code
-- `.10xWarehouseAstro/vue/src/layouts` - Astro layouts
-- `.10xWarehouseAstro/vue/src/pages` - Astro pages
-- `.10xWarehouseAstro/vue/src/pages/api` - API endpoints
-- `.10xWarehouseAstro/vue/src/components` - client-side components written in Astro (static) and React (dynamic)
-- `.10xWarehouseAstro/vue/src/assets` - static internal assets
-- `.10xWarehouseAstro/vue/public` - public assets
+- `.10xWarehouseAstro/astro-app/src` - source code
+- `.10xWarehouseAstro/astro-app/src/layouts` - Astro layouts
+- `.10xWarehouseAstro/astro-app/src/pages` - Astro pages
+- `.10xWarehouseAstro/astro-app/src/pages/api` - API endpoints
+- `.10xWarehouseAstro/astro-app/src/components` - client-side components written in Astro (static) and React (dynamic)
+- `.10xWarehouseAstro/astro-app/src/assets` - static internal assets
+- `.10xWarehouseAstro/astro-app/public` - public assets
 
 When modifying the directory structure, always update this section.
 
