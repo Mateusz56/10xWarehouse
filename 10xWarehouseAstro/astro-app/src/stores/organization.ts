@@ -2,8 +2,10 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { OrganizationDto, OrganizationVM, UserVM, CreateOrganizationRequestDto } from '@/types/dto';
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/stores/auth';
 
 export const useOrganizationStore = defineStore('organization', () => {
+  const authStore = useAuthStore();
   const user = ref<UserVM | null>(null);
   const organizations = ref<OrganizationVM[]>([]);
   const currentOrganizationId = ref<string | null>(null);
@@ -31,6 +33,11 @@ export const useOrganizationStore = defineStore('organization', () => {
   }
   
   async function fetchUserData() {
+    if (!authStore.isAuthenticated) {
+      console.warn('User not authenticated, cannot fetch user data');
+      return;
+    }
+
     try {
       const userData = await api.getUserData();
       const organizationsVM = userData.memberships.map(m => ({ id: m.organizationId, name: m.organizationName }));
@@ -40,7 +47,6 @@ export const useOrganizationStore = defineStore('organization', () => {
         email: userData.email,
         displayName: userData.displayName,
         organizations: organizationsVM,
-        // Set initial/default organization
         currentOrganizationId: organizationsVM[0]?.id,
         currentRole: userData.memberships[0]?.role,
       };
@@ -50,7 +56,10 @@ export const useOrganizationStore = defineStore('organization', () => {
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error);
-      // Handle error appropriately
+      // If auth error, sign out user
+      if (error instanceof Error && error.message === 'Authentication required') {
+        await authStore.signOut();
+      }
     }
   }
 
@@ -65,12 +74,13 @@ export const useOrganizationStore = defineStore('organization', () => {
     return newOrganization;
   }
 
-  function logout() {
+  async function logout() {
+    await authStore.signOut();
     user.value = null;
     organizations.value = [];
     currentOrganizationId.value = null;
     console.log('User logged out');
-    // redirect to /login
+    // Redirect will be handled by the component calling this function
   }
 
 

@@ -8,6 +8,7 @@ namespace _10xWarehouseNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Require authentication for all endpoints
     public class OrganizationsController : ControllerBase
     {
         private readonly IOrganizationService _organizationService;
@@ -27,7 +28,8 @@ namespace _10xWarehouseNet.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userId = "012f67d6-a528-4d0e-afa6-29d957e31f25";// User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Get user ID from authenticated claims
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized("User ID not found in token.");

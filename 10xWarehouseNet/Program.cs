@@ -2,6 +2,9 @@ using _10xWarehouseNet.Clients;
 using _10xWarehouseNet.Db;
 using Microsoft.EntityFrameworkCore;
 using _10xWarehouseNet.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using _10xWarehouseNet.Authentication;
+using Microsoft.AspNetCore.Authentication;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +24,17 @@ builder.Services.AddScoped<SupabaseUsers>(provider =>
     var supabaseClient = provider.GetRequiredService<Supabase.Client>();
     return new SupabaseUsers(supabaseClient, supabaseServiceRoleKey);
 });
+
+// Add authentication services
+builder.Services.AddScoped<SupabaseJwtAuthenticationService>(provider =>
+{
+    var supabaseClient = provider.GetRequiredService<Supabase.Client>();
+    return new SupabaseJwtAuthenticationService(supabaseClient, supabaseServiceRoleKey);
+});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddScheme<JwtBearerOptions, SupabaseJwtAuthenticationHandler>(
+        JwtBearerDefaults.AuthenticationScheme, 
+        options => { });
 
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
@@ -54,8 +68,10 @@ app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
 
-app.UseAuthorization();
+// Order matters: Authentication must come before Authorization
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

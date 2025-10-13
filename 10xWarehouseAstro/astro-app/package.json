@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/mdx": "^4.3.7",
     "@astrojs/vue": "^5.1.1",
+    "@supabase/supabase-js": "^2.75.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/canvas-confetti": "^1.9.0",
     "@vee-validate/zod": "^4.15.1",

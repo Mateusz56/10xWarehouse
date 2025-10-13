@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import { getCurrentInstance } from 'vue';
-import { pinia } from '@/stores';
 import SidebarNav from './SidebarNav.vue';
 import CreateOrganizationModal from './CreateOrganizationModal.vue';
-
-// Get the current Vue app instance and install Pinia
-const vm = getCurrentInstance();
-if (vm) {
-  vm.appContext.app.use(pinia);
-}
 </script>
 
 <template>

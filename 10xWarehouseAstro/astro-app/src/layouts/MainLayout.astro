@@ -1,6 +1,12 @@
 ---
 import App from '../components/App.vue';
 import '../styles/global.css';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
 ---
 
 <html lang="en">
@@ -9,7 +15,7 @@ import '../styles/global.css';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>10xWarehouse</title>
+		<title>{title}</title>
 	</head>
 	<body class="dark">
 		<App client:load>

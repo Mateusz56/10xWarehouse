@@ -10,6 +10,21 @@ public record OrganizationMemberDto(Guid? UserId, string Email, UserRole Role, I
 
 public record InvitationDto(Guid Id, Guid InvitedUserId, UserRole Role, InvitationStatus Status);
 
+public record UserDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public List<MembershipDto> Memberships { get; set; } = new();
+}
+
+public record MembershipDto
+{
+    public string OrganizationId { get; set; } = string.Empty;
+    public string OrganizationName { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+}
+
 public record CreateOrganizationRequestDto
 {
     [Required]

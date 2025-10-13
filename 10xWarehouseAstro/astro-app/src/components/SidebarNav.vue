@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useOrganizationStore } from '@/stores/organization';
+import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import NavItem from './NavItem.vue';
 import OrganizationSwitcher from './OrganizationSwitcher.vue';
@@ -10,10 +11,18 @@ import type { NavItemVM } from '@/types/dto';
 import { Button } from '@/components/ui/button';
 
 const organizationStore = useOrganizationStore();
+const authStore = useAuthStore();
 const uiStore = useUiStore();
 
-onMounted(() => {
-  organizationStore.fetchUserData();
+onMounted(async () => {
+  // Wait for auth to be initialized if it hasn't been yet
+  if (!authStore.isInitialized) {
+    await authStore.initializeAuth();
+  }
+  
+  if (authStore.isAuthenticated) {
+    organizationStore.fetchUserData();
+  }
 });
 
 const navItems = computed<NavItemVM[]>(() => {
@@ -37,6 +46,11 @@ const currentPage = '/'; // This would come from Astro's currentPage prop
 
 function handleOrgSwitch(orgId: string) {
   organizationStore.switchOrganization(orgId);
+}
+
+async function handleLogout() {
+  await organizationStore.logout();
+  window.location.href = '/login';
 }
 </script>
 
@@ -65,7 +79,12 @@ function handleOrgSwitch(orgId: string) {
     </nav>
     
     <div class="p-4 mt-auto">
-      <Button @click="organizationStore.logout()" variant="outline" class="w-full">
+      <Button 
+        v-if="authStore.isAuthenticated"
+        @click="handleLogout" 
+        variant="outline" 
+        class="w-full"
+      >
         Logout
       </Button>
     </div>
