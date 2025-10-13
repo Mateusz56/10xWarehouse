@@ -1,4 +1,16 @@
-import type { CreateOrganizationRequestDto, OrganizationDto, UserDto } from "@/types/dto";
+import type { 
+  CreateOrganizationRequestDto, 
+  OrganizationDto, 
+  UserDto,
+  WarehouseDto,
+  WarehouseWithLocationsDto,
+  CreateWarehouseRequestDto,
+  UpdateWarehouseRequestDto,
+  LocationDto,
+  CreateLocationRequestDto,
+  UpdateLocationRequestDto,
+  PaginatedResponseDto
+} from "@/types/dto";
 import { useAuthStore } from '@/stores/auth';
 
 const API_BASE_URL = 'https://localhost:7146/api';
@@ -46,4 +58,68 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+};
+
+export const warehouseApi = {
+  async getWarehouses(organizationId: string, page: number = 1, pageSize: number = 10): Promise<PaginatedResponseDto<WarehouseDto>> {
+    return fetchWrapper<PaginatedResponseDto<WarehouseDto>>(
+      `${API_BASE_URL}/warehouses?organizationId=${organizationId}&page=${page}&pageSize=${pageSize}`
+    );
+  },
+
+  async getWarehouse(id: string): Promise<WarehouseWithLocationsDto> {
+    return fetchWrapper<WarehouseWithLocationsDto>(`${API_BASE_URL}/warehouses/${id}`);
+  },
+
+  async createWarehouse(data: CreateWarehouseRequestDto): Promise<WarehouseDto> {
+    return fetchWrapper<WarehouseDto>(`${API_BASE_URL}/warehouses`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateWarehouse(id: string, data: UpdateWarehouseRequestDto): Promise<WarehouseDto> {
+    return fetchWrapper<WarehouseDto>(`${API_BASE_URL}/warehouses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteWarehouse(id: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/warehouses/${id}`, {
+      method: 'DELETE',
+    });
+  }
+};
+
+export const locationApi = {
+  async getLocations(warehouseId: string, page: number = 1, pageSize: number = 10): Promise<PaginatedResponseDto<LocationDto>> {
+    return fetchWrapper<PaginatedResponseDto<LocationDto>>(
+      `${API_BASE_URL}/locations?warehouseId=${warehouseId}&page=${page}&pageSize=${pageSize}`
+    );
+  },
+
+  async getLocation(id: string): Promise<LocationDto> {
+    return fetchWrapper<LocationDto>(`${API_BASE_URL}/locations/${id}`);
+  },
+
+  async createLocation(data: CreateLocationRequestDto): Promise<LocationDto> {
+    return fetchWrapper<LocationDto>(`${API_BASE_URL}/locations`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateLocation(id: string, data: UpdateLocationRequestDto): Promise<LocationDto> {
+    return fetchWrapper<LocationDto>(`${API_BASE_URL}/locations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteLocation(id: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/locations/${id}`, {
+      method: 'DELETE',
+    });
+  }
 };

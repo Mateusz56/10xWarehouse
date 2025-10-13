@@ -1,0 +1,11 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import AuthGuard from '../components/AuthGuard.vue';
+import WarehousePageView from '../components/WarehousePageView.vue';
+---
+
+<MainLayout title="Warehouses - 10xWarehouse">
+  <AuthGuard client:load>
+    <WarehousePageView client:load />
+  </AuthGuard>
+</MainLayout>
