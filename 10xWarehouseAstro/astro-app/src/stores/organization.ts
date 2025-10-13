@@ -9,6 +9,8 @@ export const useOrganizationStore = defineStore('organization', () => {
   const user = ref<UserVM | null>(null);
   const organizations = ref<OrganizationVM[]>([]);
   const currentOrganizationId = ref<string | null>(null);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
   const currentOrganization = computed(() => {
     return organizations.value.find(o => o.id === currentOrganizationId.value) || null;
@@ -16,11 +18,9 @@ export const useOrganizationStore = defineStore('organization', () => {
 
   const currentRole = computed(() => {
     if (!user.value || !currentOrganizationId.value) return null;
-    const membership = user.value.organizations.find(org => org.id === currentOrganizationId.value);
-    // This is a simplified version. In a real app, UserVM might need to be structured differently
-    // or we'd find the role from a different property. For now, this is a placeholder.
-    // Let's assume the user object holds role info per organization.
-    return user.value.currentRole; // Placeholder
+    // Find the membership for the current organization
+    const membership = user.value.memberships?.find(m => m.organizationId === currentOrganizationId.value);
+    return membership?.role || null;
   });
 
   function addOrganization(newOrganization: OrganizationDto) {
@@ -38,6 +38,9 @@ export const useOrganizationStore = defineStore('organization', () => {
       return;
     }
 
+    loading.value = true;
+    error.value = null;
+
     try {
       const userData = await api.getUserData();
       const organizationsVM = userData.memberships.map(m => ({ id: m.organizationId, name: m.organizationName }));
@@ -47,19 +50,24 @@ export const useOrganizationStore = defineStore('organization', () => {
         email: userData.email,
         displayName: userData.displayName,
         organizations: organizationsVM,
-        currentOrganizationId: organizationsVM[0]?.id,
-        currentRole: userData.memberships[0]?.role,
+        currentOrganizationId: organizationsVM[0]?.id || '',
+        currentRole: userData.memberships[0]?.role || 'Viewer',
+        memberships: userData.memberships,
       };
       organizations.value = organizationsVM;
       if (organizationsVM.length > 0) {
         currentOrganizationId.value = organizationsVM[0].id;
       }
-    } catch (error) {
-      console.error('Failed to fetch user data:', error);
+    } catch (err) {
+      console.error('Failed to fetch user data:', err);
+      error.value = err instanceof Error ? err.message : 'Failed to load user data';
+      
       // If auth error, sign out user
-      if (error instanceof Error && error.message === 'Authentication required') {
+      if (err instanceof Error && err.message === 'Authentication required') {
         await authStore.signOut();
       }
+    } finally {
+      loading.value = false;
     }
   }
 
@@ -69,9 +77,20 @@ export const useOrganizationStore = defineStore('organization', () => {
   }
 
   async function createOrganization(data: CreateOrganizationRequestDto) {
-    const newOrganization = await api.createOrganization(data);
-    addOrganization(newOrganization);
-    return newOrganization;
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const newOrganization = await api.createOrganization(data);
+      addOrganization(newOrganization);
+      return newOrganization;
+    } catch (err) {
+      console.error('Failed to create organization:', err);
+      error.value = err instanceof Error ? err.message : 'Failed to create organization';
+      throw err; // Re-throw so the component can handle it
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function logout() {
@@ -84,16 +103,23 @@ export const useOrganizationStore = defineStore('organization', () => {
   }
 
 
+  function clearError() {
+    error.value = null;
+  }
+
   return {
     user,
     organizations,
     currentOrganizationId,
     currentOrganization,
     currentRole,
+    loading,
+    error,
     addOrganization,
     fetchUserData,
     switchOrganization,
     createOrganization,
     logout,
+    clearError,
   };
 });

@@ -1,139 +1,86 @@
-# View Implementation Plan: Create Organization
+# API Endpoint Implementation Plan: Create Organization
 
-## 1. Overview
-This document outlines the implementation plan for the "Create Organization" feature. The purpose of this feature is to allow an authenticated user to create a new organization by providing a name. The creation process will be handled within a modal, triggered from a button in the main sidebar navigation, consistent with the application's UI patterns for resource creation.
+## 1. Endpoint Overview
+This document outlines the implementation plan for the `POST /api/organizations` endpoint. The purpose of this endpoint is to allow an authenticated user to create a new organization. Upon creation, the user who initiated the request will be automatically assigned as the 'Owner' of the new organization.
 
-## 2. View Routing
-This feature is implemented as a modal and does not have a dedicated URL path. The modal will be triggered by a global application event or state change, making it accessible from any view where the main sidebar is present.
+## 2. Request Details
+- **HTTP Method**: `POST`
+- **URL Structure**: `/api/organizations`
+- **Request Body**: The request body must be a JSON object with the following structure:
+  ```json
+  {
+    "name": "string"
+  }
+  ```
+- **Headers**:
+    - `Authorization`: `Bearer <JWT_TOKEN>` (Required)
+    - `Content-Type`: `application/json` (Required)
 
-## 3. Component Structure
-The feature will be composed of the following components in a parent-child hierarchy:
+## 3. Used Types
+- **Request DTO**: `_10xWarehouseNet.Dtos.OrganizationDtos.CreateOrganizationRequestDto`
+- **Response DTO**: `_10xWarehouseNet.Dtos.OrganizationDtos.OrganizationDto`
+- **Database Models**:
+    - `_10xWarehouseNet.Db.Models.Organization`
+    - `_10xWarehouseNet.Db.Models.OrganizationMember`
+- **Enum**: `_10xWarehouseNet.Db.Enums.UserRole`
 
-```
-SidebarNav
-└── CreateOrganizationButton
-    └── (triggers) CreateOrganizationModal
-        └── CreateOrganizationForm
-            ├── TextInput (for organization name)
-            └── Button (for submit)
-```
+## 4. Data Flow
+1. A client sends a `POST` request to `/api/organizations` with a valid JWT and a JSON body containing the organization `name`.
+2. The ASP.NET Core authentication middleware validates the JWT. If invalid, it rejects the request with a `401 Unauthorized` status.
+3. The request is routed to the `CreateOrganization` action in the `OrganizationsController`.
+4. The framework performs model binding and validation on the request body using the `CreateOrganizationRequestDto`. If validation fails, a `400 Bad Request` is returned.
+5. The controller extracts the creator's user ID from the JWT claims (`HttpContext.User`).
+6. The controller calls the `IOrganizationService.CreateOrganizationAsync` method, passing the request DTO and the user ID.
+7. The service initiates a database transaction.
+8. Inside the transaction, it:
+    a. Creates a new `Organization` entity with the provided name.
+    b. Creates a new `OrganizationMember` entity, linking the new organization's ID with the creator's user ID and setting the `Role` to `UserRole.Owner`.
+    c. Saves both entities to the database using `DbContext.SaveChangesAsync()`.
+9. If the transaction is successful, the service returns the newly created `Organization` entity.
+10. The controller maps the `Organization` entity to an `OrganizationDto`.
+11. The controller returns a `201 Created` response with the `OrganizationDto` in the body.
 
-## 4. Component Details
-### CreateOrganizationButton
--   **Component description**: A simple button component, likely an icon and text, placed in the `SidebarNav`. Its sole purpose is to open the `CreateOrganizationModal`.
--   **Main elements**: A `<button>` element.
--   **Handled interactions**:
-    -   `click`: Emits an event or updates a global Pinia state variable to set the `CreateOrganizationModal` to be visible.
--   **Handled validation**: None.
--   **Types**: None.
--   **Props**: None.
+## 5. Security Considerations
+- **Authentication**: The endpoint will be decorated with the `[Authorize]` attribute to ensure only authenticated users can access it.
+- **Authorization**: Any authenticated user is permitted to create a new organization. No specific roles are required for this action.
+- **Input Validation**: The `Name` property on the `CreateOrganizationRequestDto` will be validated using `[Required]` and `[StringLength(100)]` attributes to prevent null/empty values and overly long inputs.
+- **User Identity**: The user's ID must be reliably retrieved from the JWT's `sub` (subject) claim to ensure the correct user is assigned as the owner.
 
-### CreateOrganizationModal
--   **Component description**: A modal dialog that houses the form for creating a new organization. It handles the visibility of the form and provides a mechanism to close it.
--   **Main elements**: A modal/dialog wrapper component (e.g., from `shadcn/ui`), a title (e.g., "Create a new organization"), and a close button. It will contain the `CreateOrganizationForm` component as a child.
--   **Handled interactions**:
-    -   `close`: Handles requests to close the modal (e.g., clicking the 'X' button, pressing Escape, or clicking the overlay). This will update the global state to hide the modal.
--   **Handled validation**: None.
--   **Types**: None.
--   **Props**:
-    -   `isOpen (boolean)`: Controls the visibility of the modal, passed down from a parent component or read from a global store.
+## 6. Error Handling
+The following error conditions and their corresponding HTTP status codes will be handled:
+- **400 Bad Request**:
+    - The request body is malformed or missing.
+    - The `name` field is missing, empty, or exceeds the maximum length.
+    - A `ValidationProblemDetails` object will be returned with details about the validation errors.
+- **401 Unauthorized**:
+    - The `Authorization` header is missing or the JWT is invalid/expired.
+- **500 Internal Server Error**:
+    - An unhandled exception occurs, such as a database connection failure or a transaction commit failure.
+    - A generic error message will be returned, and detailed exception information will be logged for diagnostics.
 
-### CreateOrganizationForm
--   **Component description**: The core form for creating an organization. It contains the input field for the organization name and the submit button. It is responsible for handling user input, validation, and the API submission process.
--   **Main elements**: A `<form>` element containing one `TextInput` component for the name, and one `Button` component for submission. It will also include an area to display form-level error messages from the API.
--   **Handled interactions**:
-    -   `input`: Updates the local state for the organization name.
-    -   `submit`: Triggers the form submission process, including validation and the API call to `POST /api/organizations`.
--   **Handled validation**:
-    -   **Organization Name**:
-        -   **Required**: The field cannot be empty.
-        -   **Minimum Length**: Must be at least 3 characters long.
-        -   **Maximum Length**: Must be no more than 100 characters long.
--   **Types**: `CreateOrganizationRequestDto`, `OrganizationDto`, `CreateOrganizationViewModel`.
--   **Props**: None.
+## 7. Performance Considerations
+- The operation involves two database inserts within a single transaction. This is a fast operation and is not expected to be a performance bottleneck.
+- Database indexes on the foreign keys of the `organization_members` table (`organization_id`, `user_id`) will ensure efficient writes and subsequent queries. These are typically created automatically by EF Core when defining relationships.
 
-## 5. Types
-### DTOs (from Backend)
--   **`CreateOrganizationRequestDto`**: The object sent to the API.
-    ```typescript
-    interface CreateOrganizationRequestDto {
-      name: string;
-    }
-    ```
--   **`OrganizationDto`**: The object received from the API upon successful creation.
-    ```typescript
-    interface OrganizationDto {
-      id: string; // uuid
-      name: string;
-    }
-    ```
-
-### ViewModels (Frontend-specific)
--   **`CreateOrganizationViewModel`**: The local state model for the `CreateOrganizationForm` component.
-    ```typescript
-    interface CreateOrganizationViewModel {
-      name: string;
-      isLoading: boolean;
-      error: string | null;
-    }
-    ```
-    -   `name`: Bound to the organization name input field.
-    -   `isLoading`: A boolean to track the submission status, used to disable the submit button and show a loading indicator.
-    -   `error`: A string to hold any form-level error messages returned from the API (e.g., "An unexpected error occurred.").
-
-## 6. State Management
--   **Local Component State**: The `CreateOrganizationForm` will manage its own UI state (`name`, `isLoading`, `error`) using Vue's `ref` or `reactive`. This state is encapsulated within the form and does not need to be shared globally.
--   **Global State (Pinia)**: A global `uiStore` will manage the visibility of the `CreateOrganizationModal`.
-    -   **State**: `isCreateOrganizationModalOpen: boolean`.
-    -   **Actions**: `openCreateOrganizationModal()`, `closeCreateOrganizationModal()`.
-    -   The `CreateOrganizationButton` calls `open...`, and the `CreateOrganizationModal` calls `close...`.
--   The `orgStore` will be updated after a successful creation to add the new organization to the user's list and potentially switch to it.
-
-## 7. API Integration
--   **Endpoint**: `POST /api/organizations`
--   **Integration Logic**: The `onSubmit` method in the `CreateOrganizationForm` will handle the API call.
-    1.  Set `isLoading` to `true` and clear any previous `error`.
-    2.  Validate the form fields. If invalid, stop and display validation errors.
-    3.  Construct the `CreateOrganizationRequestDto` object from the form's state.
-    4.  Make a `POST` request to `/api/organizations` using `fetch`, including the `Authorization: Bearer <token>` header and the JSON payload.
-    5.  **On Success (200-299 status)**:
-        -   Parse the `OrganizationDto` from the response.
-        -   Call an action in the `orgStore` to add the new organization to the global list.
-        -   Call `closeCreateOrganizationModal()` from the `uiStore`.
-        -   Display a success toast notification (e.g., "Organization created!").
-    6.  **On Failure**:
-        -   Handle specific error codes (see Error Handling).
-        -   Set the `error` state with a user-friendly message.
-    7.  **Finally**: Set `isLoading` to `false`.
-
-## 8. User Interactions
--   **Opening the Modal**: The user clicks the "Create Organization" button in the sidebar, which sets `isCreateOrganizationModalOpen` to `true`, displaying the modal.
--   **Entering Data**: The user types the desired name into the text input. Inline validation provides immediate feedback if the name is too short or long.
--   **Submitting**: The user clicks the "Create" button. The button becomes disabled, and a loading indicator may appear.
--   **Closing the Modal**: The user can close the modal by clicking the 'X' button, pressing the `Escape` key, or clicking the overlay. This resets the form state.
-
-## 9. Conditions and Validation
--   **Submission Button State**: The "Create" button in the `CreateOrganizationForm` will be disabled if:
-    -   The `name` field is invalid (empty, <3 chars, >100 chars).
-    -   `isLoading` is `true` (an API request is in progress).
--   **Input Validation**: The `TextInput` component will display a visual error state (e.g., a red border) and an error message if its validation rules are not met. Validation will be handled by a library like `VeeValidate` with a `Zod` schema.
-
-## 10. Error Handling
--   **400 Bad Request**: The API may return this for validation errors not caught by the client or other issues. The response body should be inspected for details, and a generic error message like "Invalid data provided." can be displayed in the form's error area.
--   **401 Unauthorized**: The user's token is invalid or missing. The application should perform a global redirect to the `/login` page.
--   **Network Errors**: If the `fetch` call fails due to a network issue, a generic error message like "Could not connect to the server. Please try again later." will be displayed in the form's error area.
--   **Other 5xx Errors**: For any other server-side errors, a generic message "An unexpected error occurred. Please try again." will be displayed.
-
-## 11. Implementation Steps
-1.  **State Management**: Add `isCreateOrganizationModalOpen` state and corresponding actions to the `uiStore` in Pinia.
-2.  **Sidebar Button**: Create the `CreateOrganizationButton.vue` component and add it to the `SidebarNav`. Wire its `click` event to the `openCreateOrganizationModal` Pinia action.
-3.  **Modal Component**: Create the `CreateOrganizationModal.vue` component. It should read its visibility from the `isCreateOrganizationModalOpen` state and call the `close...` action when it needs to be hidden.
-4.  **Form Component**: Create the `CreateOrganizationForm.vue` component.
-    -   Set up local state (`name`, `isLoading`, `error`).
-    -   Build the form layout with a `TextInput` and a `Button`.
-    -   Implement the validation logic for the `name` field using `VeeValidate` and `Zod`.
-5.  **API Logic**: Implement the `onSubmit` method in `CreateOrganizationForm.vue`.
-    -   Write the `fetch` call to the `POST /api/organizations` endpoint.
-    -   Implement the full success and error handling logic.
-6.  **Global State Update**: After a successful API call, dispatch an action to the `orgStore` to update the list of organizations.
-7.  **Final Integration**: Place the `CreateOrganizationForm` inside the `CreateOrganizationModal` and ensure all props and events are correctly handled. Test the end-to-end flow.
+## 8. Implementation Steps
+1. **Create Service Layer**:
+   - Define an `IOrganizationService` interface with a method: `Task<Organization> CreateOrganizationAsync(CreateOrganizationRequestDto request, Guid userId);`
+   - Implement the `OrganizationService` class, injecting `WarehouseDbContext` and `ILogger`.
+   - Implement the `CreateOrganizationAsync` method, ensuring the database operations are wrapped in a transaction (`await _context.Database.BeginTransactionAsync()`).
+2. **Register Service**:
+   - Register the `IOrganizationService` and `OrganizationService` for dependency injection in `Program.cs` (`builder.Services.AddScoped<IOrganizationService, OrganizationService>();`).
+3. **Create Controller**:
+   - Create a new API controller named `OrganizationsController.cs`.
+   - Inject `IOrganizationService` and `ILogger` into the controller's constructor.
+4. **Implement Controller Action**:
+   - Create a `POST` action method `CreateOrganization([FromBody] CreateOrganizationRequestDto request)`.
+   - Add the `[Authorize]` and `[HttpPost]` attributes to the method.
+   - Add model validation logic (`if (!ModelState.IsValid)`).
+   - Retrieve the current user's ID from `User.FindFirstValue(ClaimTypes.NameIdentifier)`.
+   - Call the `organizationService.CreateOrganizationAsync` method.
+   - Map the result to `OrganizationDto`.
+   - Return a `CreatedAtActionResult` with the 201 status code, the route to get the new organization (if applicable), and the `OrganizationDto`.
+5. **Add Validation Attributes**:
+   - Ensure the `CreateOrganizationRequestDto.Name` property has `[Required]` and `[StringLength(100)]` attributes.
+6. **Unit/Integration Testing**:
+   - Write unit tests for the `OrganizationService` to verify the transaction logic and correct entity creation.

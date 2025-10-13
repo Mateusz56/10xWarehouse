@@ -7,9 +7,15 @@ async function fetchWrapper<T>(url: string, options: RequestInit = {}): Promise<
   const authStore = useAuthStore();
   const token = authStore.getAccessToken();
   
+  // Get current organization ID from the organization store
+  const { useOrganizationStore } = await import('@/stores/organization');
+  const organizationStore = useOrganizationStore();
+  const currentOrgId = organizationStore.currentOrganizationId;
+  
   const headers = {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(currentOrgId && { 'X-Organization-Id': currentOrgId }),
     ...options.headers,
   };
 

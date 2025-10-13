@@ -60,10 +60,22 @@ async function handleLogout() {
       <OrganizationSwitcher
         :organizations="organizationStore.organizations"
         :current-organization-id="organizationStore.currentOrganizationId"
+        :loading="organizationStore.loading"
         @select="handleOrgSwitch"
       />
       <div class="mt-2">
         <CreateOrganizationButton />
+      </div>
+      
+      <!-- Error display -->
+      <div v-if="organizationStore.error" class="mt-3 p-2 bg-red-50 border border-red-200 rounded-md">
+        <p class="text-sm text-red-600">{{ organizationStore.error }}</p>
+        <button 
+          @click="organizationStore.clearError" 
+          class="text-xs text-red-500 hover:text-red-700 mt-1"
+        >
+          Dismiss
+        </button>
       </div>
     </div>
 
@@ -84,8 +96,9 @@ async function handleLogout() {
         @click="handleLogout" 
         variant="outline" 
         class="w-full"
+        :disabled="authStore.loading"
       >
-        Logout
+        {{ authStore.loading ? 'Logging out...' : 'Logout' }}
       </Button>
     </div>
   </aside>

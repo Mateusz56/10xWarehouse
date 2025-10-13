@@ -32,6 +32,7 @@ export interface UserVM {
   currentOrganizationId: string;
   currentRole: 'Owner' | 'Member' | 'Viewer';
   organizations: OrganizationVM[];
+  memberships: MembershipDto[];
 }
 
 export interface NavItemVM {

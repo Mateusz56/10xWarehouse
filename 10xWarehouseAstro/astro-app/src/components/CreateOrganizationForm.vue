@@ -35,8 +35,10 @@ const onSubmit = handleSubmit(async (values) => {
     await organizationStore.createOrganization(values);
     uiStore.closeCreateOrganizationModal();
     resetForm();
-    alert('Organization created!'); // TODO: Replace with a toast component
+    // Success feedback - could be enhanced with a toast notification system
+    console.log('Organization created successfully!');
   } catch (err) {
+    // Error is already handled in the store, but we can show a local error too
     error.value = err instanceof Error ? err.message : 'An unexpected error occurred.';
   }
 });
