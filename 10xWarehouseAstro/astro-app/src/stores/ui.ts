@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { WarehouseVM, WarehouseWithLocationsDto, LocationVM } from '@/types/dto';
+import type { WarehouseVM, WarehouseWithLocationsDto, LocationVM, ProductTemplateVM } from '@/types/dto';
 
 export const useUiStore = defineStore('ui', () => {
   // Organization modals
@@ -26,6 +26,12 @@ export const useUiStore = defineStore('ui', () => {
   const isEditLocationModalOpen = ref(false);
   const isDeleteLocationModalOpen = ref(false);
   const selectedLocation = ref<LocationVM | null>(null);
+
+  // Product modals
+  const isCreateProductModalOpen = ref(false);
+  const isEditProductModalOpen = ref(false);
+  const isDeleteProductModalOpen = ref(false);
+  const selectedProduct = ref<ProductTemplateVM | null>(null);
 
   function openCreateWarehouseModal() {
     isCreateWarehouseModalOpen.value = true;
@@ -104,6 +110,35 @@ export const useUiStore = defineStore('ui', () => {
     selectedLocation.value = null;
   }
 
+  // Product modal functions
+  function openCreateProductModal() {
+    isCreateProductModalOpen.value = true;
+  }
+
+  function closeCreateProductModal() {
+    isCreateProductModalOpen.value = false;
+  }
+
+  function openEditProductModal(product: ProductTemplateVM) {
+    selectedProduct.value = product;
+    isEditProductModalOpen.value = true;
+  }
+
+  function closeEditProductModal() {
+    isEditProductModalOpen.value = false;
+    selectedProduct.value = null;
+  }
+
+  function openDeleteProductModal(product: ProductTemplateVM) {
+    selectedProduct.value = product;
+    isDeleteProductModalOpen.value = true;
+  }
+
+  function closeDeleteProductModal() {
+    isDeleteProductModalOpen.value = false;
+    selectedProduct.value = null;
+  }
+
   return {
     // Organization modals
     isCreateOrganizationModalOpen,
@@ -138,5 +173,17 @@ export const useUiStore = defineStore('ui', () => {
     closeEditLocationModal,
     openDeleteLocationModal,
     closeDeleteLocationModal,
+    
+    // Product modals
+    isCreateProductModalOpen,
+    isEditProductModalOpen,
+    isDeleteProductModalOpen,
+    selectedProduct,
+    openCreateProductModal,
+    closeCreateProductModal,
+    openEditProductModal,
+    closeEditProductModal,
+    openDeleteProductModal,
+    closeDeleteProductModal,
   };
 });

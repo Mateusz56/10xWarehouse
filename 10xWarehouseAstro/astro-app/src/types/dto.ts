@@ -143,3 +143,39 @@ export interface WarehouseDetailsVM {
   locations: LocationVM[];
   pagination: PaginationDto;
 }
+
+// Product Template DTOs
+export interface ProductTemplateDto {
+  id: string;
+  name: string;
+  barcode?: string;
+  description?: string;
+  lowStockThreshold?: number;
+}
+
+export interface CreateProductTemplateRequestDto {
+  organizationId: string;
+  name: string;
+  barcode?: string;
+  description?: string;
+  lowStockThreshold?: number;
+}
+
+// Product Template View Models
+export interface ProductTemplateVM {
+  id: string;
+  name: string;
+  barcode?: string;
+  description?: string;
+  lowStockThreshold?: number;
+}
+
+export interface ProductPageState {
+  products: ProductTemplateVM[];
+  loading: boolean;
+  error: string | null;
+  pagination: PaginationDto;
+  currentPage: number;
+  pageSize: number;
+  searchQuery: string;
+}

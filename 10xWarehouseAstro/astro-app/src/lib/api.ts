@@ -9,7 +9,9 @@ import type {
   LocationDto,
   CreateLocationRequestDto,
   UpdateLocationRequestDto,
-  PaginatedResponseDto
+  PaginatedResponseDto,
+  ProductTemplateDto,
+  CreateProductTemplateRequestDto
 } from "@/types/dto";
 import { useAuthStore } from '@/stores/auth';
 
@@ -126,6 +128,39 @@ export const locationApi = {
 
   async deleteLocation(id: string): Promise<void> {
     return fetchWrapper<void>(`${API_BASE_URL}/locations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+};
+
+export const productTemplateApi = {
+  async getProductTemplates(organizationId: string, page: number = 1, pageSize: number = 10, search?: string): Promise<PaginatedResponseDto<ProductTemplateDto>> {
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+    return fetchWrapper<PaginatedResponseDto<ProductTemplateDto>>(
+      `${API_BASE_URL}/producttemplates?organizationId=${organizationId}&page=${page}&pageSize=${pageSize}${searchParam}`
+    );
+  },
+
+  async getProductTemplate(id: string): Promise<ProductTemplateDto> {
+    return fetchWrapper<ProductTemplateDto>(`${API_BASE_URL}/producttemplates/${id}`);
+  },
+
+  async createProductTemplate(data: CreateProductTemplateRequestDto): Promise<ProductTemplateDto> {
+    return fetchWrapper<ProductTemplateDto>(`${API_BASE_URL}/producttemplates`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateProductTemplate(id: string, data: CreateProductTemplateRequestDto): Promise<ProductTemplateDto> {
+    return fetchWrapper<ProductTemplateDto>(`${API_BASE_URL}/producttemplates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteProductTemplate(id: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/producttemplates/${id}`, {
       method: 'DELETE',
     });
   }
