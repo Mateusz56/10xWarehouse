@@ -48,6 +48,21 @@ public class WarehouseHasLocationsException : Exception
 }
 
 /// <summary>
+/// Exception thrown when attempting to delete a warehouse that contains locations with inventory
+/// </summary>
+public class WarehouseHasLocationsWithInventoryException : Exception
+{
+    public WarehouseHasLocationsWithInventoryException(Guid warehouseId) 
+        : base($"Cannot delete warehouse {warehouseId} because it contains locations with inventory. Please remove all inventory from locations before deleting the warehouse.") { }
+    
+    public WarehouseHasLocationsWithInventoryException(string message) : base(message) { }
+    
+    public WarehouseHasLocationsWithInventoryException(string message, Exception innerException) : base(message, innerException) { }
+    
+    protected WarehouseHasLocationsWithInventoryException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+}
+
+/// <summary>
 /// Exception thrown when a user attempts to access a warehouse they don't have permission for
 /// </summary>
 public class UnauthorizedWarehouseAccessException : Exception

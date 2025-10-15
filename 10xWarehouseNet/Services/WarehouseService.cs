@@ -315,10 +315,18 @@ public class WarehouseService : IWarehouseService
                 throw new UnauthorizedWarehouseAccessException(warehouseId, userId);
             }
 
-            // Check if warehouse has locations
+            // Check if warehouse has locations with inventory
             if (warehouse.Locations.Any())
             {
-                throw new WarehouseHasLocationsException(warehouseId);
+                // Check if any location has inventory
+                var locationIds = warehouse.Locations.Select(l => l.Id).ToList();
+                var hasInventory = await _context.Inventories
+                    .AnyAsync(i => locationIds.Contains(i.LocationId));
+
+                if (hasInventory)
+                {
+                    throw new WarehouseHasLocationsWithInventoryException(warehouseId);
+                }
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -349,7 +357,7 @@ public class WarehouseService : IWarehouseService
             _logger.LogError(ex, "Database update error while deleting warehouse {WarehouseId}", warehouseId);
             throw new DatabaseOperationException("Database operation failed while deleting warehouse.", ex);
         }
-        catch (Exception ex) when (!(ex is InvalidUserIdException || ex is WarehouseNotFoundException || ex is UnauthorizedWarehouseAccessException || ex is WarehouseHasLocationsException || ex is DatabaseOperationException))
+        catch (Exception ex) when (!(ex is InvalidUserIdException || ex is WarehouseNotFoundException || ex is UnauthorizedWarehouseAccessException || ex is WarehouseHasLocationsException || ex is WarehouseHasLocationsWithInventoryException || ex is DatabaseOperationException))
         {
             _logger.LogError(ex, "An unexpected error occurred while deleting warehouse {WarehouseId}", warehouseId);
             throw new DatabaseOperationException("An unexpected error occurred while deleting warehouse.", ex);

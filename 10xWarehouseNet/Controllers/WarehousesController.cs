@@ -260,7 +260,7 @@ namespace _10xWarehouseNet.Controllers
             {
                 await _warehouseService.DeleteWarehouseAsync(warehouseId, userId);
 
-                return NoContent();
+                return Ok();
             }
             catch (InvalidUserIdException ex)
             {
@@ -280,6 +280,11 @@ namespace _10xWarehouseNet.Controllers
             catch (WarehouseHasLocationsException ex)
             {
                 _logger.LogWarning(ex, "Cannot delete warehouse {WarehouseId} because it has locations", warehouseId);
+                return Conflict(ex.Message);
+            }
+            catch (WarehouseHasLocationsWithInventoryException ex)
+            {
+                _logger.LogWarning(ex, "Cannot delete warehouse {WarehouseId} because it has locations with inventory", warehouseId);
                 return Conflict(ex.Message);
             }
             catch (DatabaseOperationException ex)

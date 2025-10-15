@@ -269,7 +269,7 @@ namespace _10xWarehouseNet.Controllers
             {
                 await _locationService.DeleteLocationAsync(locationId, userId);
 
-                return NoContent();
+                return Ok();
             }
             catch (InvalidUserIdException ex)
             {

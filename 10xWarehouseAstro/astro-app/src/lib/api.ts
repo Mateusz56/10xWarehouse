@@ -44,6 +44,13 @@ async function fetchWrapper<T>(url: string, options: RequestInit = {}): Promise<
     throw new Error(errorData.message || 'Failed to fetch');
   }
 
+  // Check if response has content and is JSON
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    // For responses without JSON content (like 204 No Content), return undefined
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 

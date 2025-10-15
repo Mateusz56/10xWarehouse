@@ -26,11 +26,16 @@ const isLocationDelete = computed(() => {
 });
 
 const isWarehouseDelete = computed(() => {
-  return uiStore.isDeleteWarehouseModalOpen && uiStore.selectedWarehouseDetails;
+  return uiStore.isDeleteWarehouseModalOpen && (uiStore.selectedWarehouseDetails || uiStore.selectedWarehouse);
 });
 
 const selectedItem = computed(() => {
-  return isLocationDelete.value ? uiStore.selectedLocation : uiStore.selectedWarehouseDetails;
+  if (isLocationDelete.value) {
+    return uiStore.selectedLocation;
+  } else if (isWarehouseDelete.value) {
+    return uiStore.selectedWarehouseDetails || uiStore.selectedWarehouse;
+  }
+  return null;
 });
 
 const itemName = computed(() => {
@@ -42,6 +47,11 @@ const confirmationPlaceholder = computed(() => {
 });
 
 const isValid = computed(() => {
+  // For locations, no name confirmation required
+  if (isLocationDelete.value) {
+    return true;
+  }
+  // For warehouses, require name confirmation
   return confirmationText.value.trim() === itemName.value;
 });
 
@@ -49,7 +59,7 @@ const warningMessage = computed(() => {
   if (isLocationDelete.value) {
     return 'This action cannot be undone. The location will be permanently removed from the warehouse.';
   } else {
-    return 'This action cannot be undone. The warehouse and all its locations will be permanently removed.';
+    return 'This action cannot be undone. The warehouse and all its locations will be permanently removed. Note: The warehouse can only be deleted if all locations are empty (no inventory).';
   }
 });
 
@@ -70,8 +80,13 @@ function handleClose() {
   resetForm();
   if (isLocationDelete.value) {
     uiStore.closeDeleteLocationModal();
-  } else {
-    uiStore.closeDeleteWarehouseDetailsModal();
+  } else if (isWarehouseDelete.value) {
+    // Check which warehouse was selected to close the appropriate modal
+    if (uiStore.selectedWarehouseDetails) {
+      uiStore.closeDeleteWarehouseDetailsModal();
+    } else {
+      uiStore.closeDeleteWarehouseModal();
+    }
   }
 }
 
@@ -84,10 +99,19 @@ async function handleConfirm() {
   try {
     if (isLocationDelete.value) {
       await warehouseDetailsStore.deleteLocation(selectedItem.value.id);
-    } else {
-      await warehouseDetailsStore.deleteWarehouse(selectedItem.value.id);
-      // Redirect to warehouses list after successful deletion
-      window.location.href = '/warehouses';
+    } else if (isWarehouseDelete.value) {
+      // Use the appropriate store based on which warehouse was selected
+      if (uiStore.selectedWarehouseDetails) {
+        await warehouseDetailsStore.deleteWarehouse(selectedItem.value.id);
+        // Redirect to warehouses list after successful deletion
+        window.location.href = '/warehouses';
+      } else {
+        // Import warehouseStore for this case
+        const { useWarehouseStore } = await import('@/stores/warehouse');
+        const warehouseStore = useWarehouseStore();
+        await warehouseStore.deleteWarehouse(selectedItem.value.id);
+        // No redirect needed as we're already on the warehouses list
+      }
     }
 
     handleClose();
@@ -99,7 +123,8 @@ async function handleConfirm() {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Enter' && !event.shiftKey) {
+  // Only handle Enter key for warehouses (which have confirmation input)
+  if (event.key === 'Enter' && !event.shiftKey && !isLocationDelete.value) {
     event.preventDefault();
     handleConfirm();
   }
@@ -139,8 +164,8 @@ function handleKeydown(event: KeyboardEvent) {
           </div>
         </div>
 
-        <!-- Confirmation Input -->
-        <div class="space-y-2">
+        <!-- Confirmation Input (only for warehouses) -->
+        <div v-if="!isLocationDelete" class="space-y-2">
           <Label for="confirmation-input">
             Type <strong>{{ itemName }}</strong> to confirm deletion
           </Label>
@@ -182,7 +207,7 @@ function handleKeydown(event: KeyboardEvent) {
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          {{ isSubmitting ? 'Deleting...' : `Delete ${isLocationDelete ? 'Location' : 'Warehouse'}` }}
+          {{ isSubmitting ? 'Deleting...' : (isLocationDelete ? 'Delete' : `Delete Warehouse`) }}
         </Button>
       </DialogFooter>
     </DialogContent>
