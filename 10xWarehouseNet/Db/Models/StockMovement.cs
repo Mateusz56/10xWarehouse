@@ -34,4 +34,7 @@ public class StockMovement
     public decimal Total { get; set; }
 
     public Guid? UserId { get; set; }
+
+    [Required]
+    public DateTimeOffset CreatedAt { get; set; }
 }

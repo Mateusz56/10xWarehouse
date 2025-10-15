@@ -1,4 +1,6 @@
 using _10xWarehouseNet.Db.Enums;
+using _10xWarehouseNet.Dtos.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace _10xWarehouseNet.Dtos;
 
@@ -14,10 +16,11 @@ public record StockMovementDto(
     Guid Id,
     Guid ProductTemplateId,
     MovementType MovementType,
-    int Delta,
+    decimal Delta,
     Guid? FromLocationId,
     Guid? ToLocationId,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    decimal Total
 );
 
 
@@ -31,10 +34,57 @@ public record StockMovementDto(
 /// The specific fields required will be validated in the handler based on MovementType.
 /// </summary>
 public record CreateStockMovementCommand(
+    [Required(ErrorMessage = "ProductTemplateId is required")]
     Guid ProductTemplateId,
+    
+    [Required(ErrorMessage = "MovementType is required")]
     MovementType MovementType,
+    
+    [Required(ErrorMessage = "Delta is required")]
+    [DeltaValidation(ErrorMessage = "Delta validation failed")]
     int Delta,
+    
     Guid? LocationId,
     Guid? FromLocationId,
     Guid? ToLocationId
-);
+) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var results = new List<ValidationResult>();
+
+        // Validate movement type specific requirements
+        switch (MovementType)
+        {
+            case MovementType.Add:
+            case MovementType.Withdraw:
+            case MovementType.Reconcile:
+                if (!LocationId.HasValue)
+                {
+                    results.Add(new ValidationResult($"{MovementType} operations require LocationId", new[] { nameof(LocationId) }));
+                }
+                if (FromLocationId.HasValue || ToLocationId.HasValue)
+                {
+                    results.Add(new ValidationResult($"{MovementType} operations should not specify FromLocationId or ToLocationId", new[] { nameof(FromLocationId), nameof(ToLocationId) }));
+                }
+                break;
+
+            case MovementType.Move:
+                if (!FromLocationId.HasValue || !ToLocationId.HasValue)
+                {
+                    results.Add(new ValidationResult("Move operations require both FromLocationId and ToLocationId", new[] { nameof(FromLocationId), nameof(ToLocationId) }));
+                }
+                if (LocationId.HasValue)
+                {
+                    results.Add(new ValidationResult("Move operations should not specify LocationId", new[] { nameof(LocationId) }));
+                }
+                if (FromLocationId == ToLocationId)
+                {
+                    results.Add(new ValidationResult("FromLocationId and ToLocationId must be different for move operations", new[] { nameof(FromLocationId), nameof(ToLocationId) }));
+                }
+                break;
+        }
+
+        return results;
+    }
+};

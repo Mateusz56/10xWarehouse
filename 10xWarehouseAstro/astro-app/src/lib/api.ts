@@ -11,7 +11,14 @@ import type {
   UpdateLocationRequestDto,
   PaginatedResponseDto,
   ProductTemplateDto,
-  CreateProductTemplateRequestDto
+  CreateProductTemplateRequestDto,
+  StockMovementDto,
+  CreateStockMovementCommand,
+  InventorySummaryDto,
+  ProductSummaryDto,
+  LocationSummaryDto,
+  InventoryFilters,
+  StockOperationType
 } from "@/types/dto";
 import { useAuthStore } from '@/stores/auth';
 
@@ -163,5 +170,93 @@ export const productTemplateApi = {
     return fetchWrapper<void>(`${API_BASE_URL}/producttemplates/${id}`, {
       method: 'DELETE',
     });
+  }
+};
+
+export const stockMovementApi = {
+  async getStockMovements(
+    organizationId: string, 
+    page: number = 1, 
+    pageSize: number = 50,
+    productTemplateId?: string,
+    locationId?: string
+  ): Promise<PaginatedResponseDto<StockMovementDto>> {
+    const params = new URLSearchParams({
+      organizationId,
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+    });
+    
+    if (productTemplateId) params.append('productTemplateId', productTemplateId);
+    if (locationId) params.append('locationId', locationId);
+    
+    return fetchWrapper<PaginatedResponseDto<StockMovementDto>>(
+      `${API_BASE_URL}/stockmovements?${params.toString()}`
+    );
+  },
+
+  async createStockMovement(
+    organizationId: string,
+    command: CreateStockMovementCommand
+  ): Promise<StockMovementDto> {
+    return fetchWrapper<StockMovementDto>(`${API_BASE_URL}/stockmovements?organizationId=${organizationId}`, {
+      method: 'POST',
+      body: JSON.stringify(command),
+    });
+  }
+};
+
+export const inventoryApi = {
+  async getInventory(
+    organizationId: string,
+    page: number = 1,
+    pageSize: number = 50,
+    filters: InventoryFilters = { lowStock: false }
+  ): Promise<PaginatedResponseDto<InventorySummaryDto>> {
+    const params = new URLSearchParams({
+      organizationId,
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+      lowStock: filters.lowStock.toString(),
+    });
+    
+    if (filters.productId) params.append('productTemplateId', filters.productId);
+    if (filters.locationId) params.append('locationId', filters.locationId);
+    
+    return fetchWrapper<PaginatedResponseDto<InventorySummaryDto>>(
+      `${API_BASE_URL}/inventory?${params.toString()}`
+    );
+  },
+
+  async getProducts(organizationId: string, pageSize: number = 50): Promise<ProductSummaryDto[]> {
+    const response = await fetchWrapper<PaginatedResponseDto<ProductTemplateDto>>(
+      `${API_BASE_URL}/producttemplates?organizationId=${organizationId}&page=1&pageSize=${pageSize}`
+    );
+    return response.data.map(product => ({
+      id: product.id,
+      name: product.name
+    }));
+  },
+
+  async getLocations(organizationId: string, pageSize: number = 50): Promise<LocationSummaryDto[]> {
+    // Get all warehouses first, then get locations from each warehouse
+    const warehousesResponse = await fetchWrapper<PaginatedResponseDto<WarehouseDto>>(
+      `${API_BASE_URL}/warehouses?organizationId=${organizationId}&page=1&pageSize=${pageSize}`
+    );
+    
+    const allLocations: LocationSummaryDto[] = [];
+    
+    for (const warehouse of warehousesResponse.data) {
+      const locationsResponse = await fetchWrapper<PaginatedResponseDto<LocationDto>>(
+        `${API_BASE_URL}/locations?warehouseId=${warehouse.id}&page=1&pageSize=${pageSize}`
+      );
+      
+      allLocations.push(...locationsResponse.data.map(location => ({
+        id: location.id,
+        name: location.name
+      })));
+    }
+    
+    return allLocations;
   }
 };

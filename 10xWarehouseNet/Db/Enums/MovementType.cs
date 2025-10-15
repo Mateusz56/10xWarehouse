@@ -5,5 +5,7 @@ public enum MovementType
     Add,
     Withdraw,
     Move,
-    Reconcile
+    Reconcile,
+    MoveAdd,
+    MoveSubtract
 }

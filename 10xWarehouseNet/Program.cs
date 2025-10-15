@@ -5,6 +5,7 @@ using _10xWarehouseNet.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using _10xWarehouseNet.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,12 +37,39 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         JwtBearerDefaults.AuthenticationScheme, 
         options => { });
 
+// Add authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("OwnerOrMember", policy =>
+        policy.Requirements.Add(new DatabaseRoleRequirement(DatabaseRoleType.OwnerOrMember)));
+    
+    options.AddPolicy("OwnerOnly", policy =>
+        policy.Requirements.Add(new DatabaseRoleRequirement(DatabaseRoleType.OwnerOnly)));
+    
+    options.AddPolicy("OrganizationMember", policy =>
+        policy.Requirements.Add(new DatabaseRoleRequirement(DatabaseRoleType.OrganizationMember)));
+});
+
+// Register authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, DatabaseRoleAuthorizationHandler>();
+
 builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IProductTemplateService, ProductTemplateService>();
+builder.Services.AddScoped<IStockMovementService, StockMovementService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
-builder.Services.AddControllers();
+// Add HTTP context accessor for authorization handler
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSwaggerGen();
 

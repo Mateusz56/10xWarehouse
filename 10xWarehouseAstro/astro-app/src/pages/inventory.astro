@@ -1,0 +1,11 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import AuthGuard from '@/components/AuthGuard.vue';
+import InventorySummaryView from '@/components/InventorySummaryView.vue';
+---
+
+<MainLayout title="Inventory Summary">
+  <AuthGuard client:load>
+    <InventorySummaryView client:load />
+  </AuthGuard>
+</MainLayout>

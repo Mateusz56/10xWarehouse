@@ -179,3 +179,104 @@ export interface ProductPageState {
   pageSize: number;
   searchQuery: string;
 }
+
+// Stock Movement DTOs
+export interface StockMovementDto {
+  id: string;
+  productTemplateId: string;
+  movementType: 'Add' | 'Withdraw' | 'Move' | 'Reconcile';
+  delta: number;
+  fromLocationId?: string;
+  toLocationId?: string;
+  createdAt: string; // ISO date string
+  total: number;
+}
+
+export interface ProductSummaryDto {
+  id: string;
+  name: string;
+}
+
+export interface LocationSummaryDto {
+  id: string;
+  name: string;
+}
+
+// Inventory DTOs
+export interface InventorySummaryDto {
+  product: ProductSummaryDto;
+  location: LocationSummaryDto;
+  quantity: number;
+}
+
+// Stock Movement View Models
+export interface StockMovementLogState {
+  movements: StockMovementDto[];
+  loading: boolean;
+  error: string | null;
+  pagination: PaginationDto;
+  currentPage: number;
+  pageSize: number;
+}
+
+export interface DataGridColumn {
+  key: string;
+  label: string;
+  sortable?: boolean;
+  width?: string;
+  align?: 'left' | 'center' | 'right';
+}
+
+export interface MovementTypeDisplay {
+  label: string;
+  color: string;
+  icon: string;
+}
+
+// Inventory View Models
+export interface InventorySummaryState {
+  inventory: InventorySummaryDto[];
+  products: ProductSummaryDto[];
+  locations: LocationSummaryDto[];
+  loading: boolean;
+  error: string | null;
+  pagination: PaginationDto;
+  currentPage: number;
+  pageSize: number;
+  filters: InventoryFilters;
+}
+
+export interface InventoryFilters {
+  productId?: string;
+  locationId?: string;
+  lowStock: boolean;
+}
+
+export type UserRole = 'Owner' | 'Member' | 'Viewer';
+
+export type StockOperationType = 'Add' | 'Withdraw' | 'Move' | 'Reconcile' | 'MoveAdd' | 'MoveSubtract';
+
+export interface InventoryCardProps {
+  inventory: InventorySummaryDto;
+  userRole: UserRole;
+  onMove: (inventory: InventorySummaryDto) => void;
+  onWithdraw: (inventory: InventorySummaryDto) => void;
+  onReconcile: (inventory: InventorySummaryDto) => void;
+}
+
+// Stock Movement Creation DTOs
+export interface CreateStockMovementCommand {
+  productTemplateId: string;
+  movementType: StockOperationType;
+  delta: number;
+  locationId?: string;
+  fromLocationId?: string;
+  toLocationId?: string;
+}
+
+export interface StockOperationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  inventory?: InventorySummaryDto;
+}
