@@ -1,129 +1,153 @@
 <template>
-  <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">Inventory Summary</h1>
-        <p class="text-muted-foreground">
-          View and manage inventory levels across all locations
-        </p>
-      </div>
-      
-      <!-- Action Bar -->
-      <div class="flex items-center space-x-2">
-        <Button
-          v-if="canPerformStockOperations"
-          @click="handleAddStock"
-        >
-          Add Stock
-        </Button>
-        <Button
-          variant="outline"
-          @click="handleRefresh"
-          :disabled="loading"
-        >
-          Refresh
-        </Button>
-      </div>
-    </div>
-
-    <!-- Filter Bar -->
-    <FilterBar
-      :filters="filters"
-      :products="products"
-      :locations="locations"
-      @filters-change="handleFiltersChange"
-      @clear-filters="handleClearFilters"
-    />
-
-    <!-- Error State -->
-    <div v-if="error" class="rounded-md border border-destructive/50 bg-destructive/10 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-destructive" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-destructive">Error loading inventory</h3>
-          <div class="mt-2 text-sm text-destructive">
-            <p>{{ error }}</p>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Inventory Summary</h1>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              View and manage inventory levels across all locations
+            </p>
           </div>
-          <div class="mt-4">
-            <Button variant="outline" size="sm" @click="handleRetry">
-              Try again
+          
+          <!-- Action Bar -->
+          <div class="flex items-center space-x-2">
+            <Button
+              v-if="canPerformStockOperations"
+              @click="handleAddStock"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Stock
+            </Button>
+            <Button
+              variant="outline"
+              @click="handleRefresh"
+              :disabled="loading"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
             </Button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Inventory Grid -->
-    <div v-else-if="!loading && hasInventory">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <InventoryCard
-          v-for="item in inventory"
-          :key="`${item.product.id}-${item.location.id}`"
-          :inventory="item"
-          :user-role="userRole"
-          @move="handleMove"
-          @withdraw="handleWithdraw"
-          @reconcile="handleReconcile"
+      <!-- Filter Bar -->
+      <div class="mb-6">
+        <FilterBar
+          :filters="filters"
+          :products="products"
+          :locations="locations"
+          @filters-change="handleFiltersChange"
+          @clear-filters="handleClearFilters"
         />
       </div>
 
-      <!-- Pagination -->
-      <PaginationControl
-        :pagination="pagination"
-        @page-change="handlePageChange"
-        @page-size-change="handlePageSizeChange"
+      <!-- Error State -->
+      <div v-if="error" class="rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error loading inventory</h3>
+            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+              <p>{{ error }}</p>
+            </div>
+            <div class="mt-4">
+              <Button variant="outline" size="sm" @click="handleRetry">
+                Try again
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Grid -->
+      <div v-else-if="!loading && hasInventory">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <InventoryCard
+            v-for="item in inventory"
+            :key="`${item.product.id}-${item.location.id}`"
+            :inventory="item"
+            :user-role="userRole"
+            @move="handleMove"
+            @withdraw="handleWithdraw"
+            @reconcile="handleReconcile"
+          />
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+          <PaginationControl
+            :pagination="pagination"
+            @page-change="handlePageChange"
+            @page-size-change="handlePageSizeChange"
+          />
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="!loading && !hasInventory" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No inventory found</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          There are no inventory items for this organization yet.
+        </p>
+        <div v-if="canPerformStockOperations" class="mt-6">
+          <Button @click="handleAddStock">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Stock
+          </Button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-else-if="loading" class="flex items-center justify-center p-8">
+        <div class="flex items-center space-x-2">
+          <div class="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <span class="text-sm text-gray-600 dark:text-gray-400">Loading inventory...</span>
+        </div>
+      </div>
+
+      <!-- Stock Operation Modals -->
+      <AddStockModal
+        :is-open="showAddStockModal"
+        :on-close="closeModals"
+        :on-success="handleStockOperationSuccess"
+      />
+
+      <MoveStockModal
+        :is-open="showMoveStockModal"
+        :inventory="selectedInventory"
+        :on-close="closeModals"
+        :on-success="handleStockOperationSuccess"
+      />
+
+      <WithdrawStockModal
+        :is-open="showWithdrawStockModal"
+        :inventory="selectedInventory"
+        :on-close="closeModals"
+        :on-success="handleStockOperationSuccess"
+      />
+
+      <ReconcileStockModal
+        :is-open="showReconcileStockModal"
+        :inventory="selectedInventory"
+        :on-close="closeModals"
+        :on-success="handleStockOperationSuccess"
       />
     </div>
-
-    <!-- Empty State -->
-    <EmptyState
-      v-else-if="!loading && !hasInventory"
-      title="No inventory found"
-      message="There are no inventory items for this organization yet."
-      :action-text="canPerformStockOperations ? 'Add Stock' : undefined"
-      :on-action="canPerformStockOperations ? handleAddStock : undefined"
-    />
-
-    <!-- Loading State -->
-    <div v-else-if="loading" class="flex items-center justify-center p-8">
-      <div class="flex items-center space-x-2">
-        <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-        <span class="text-sm text-muted-foreground">Loading inventory...</span>
-      </div>
-    </div>
-
-    <!-- Stock Operation Modals -->
-    <AddStockModal
-      :is-open="showAddStockModal"
-      :on-close="closeModals"
-      :on-success="handleStockOperationSuccess"
-    />
-
-    <MoveStockModal
-      :is-open="showMoveStockModal"
-      :inventory="selectedInventory"
-      :on-close="closeModals"
-      :on-success="handleStockOperationSuccess"
-    />
-
-    <WithdrawStockModal
-      :is-open="showWithdrawStockModal"
-      :inventory="selectedInventory"
-      :on-close="closeModals"
-      :on-success="handleStockOperationSuccess"
-    />
-
-    <ReconcileStockModal
-      :is-open="showReconcileStockModal"
-      :inventory="selectedInventory"
-      :on-close="closeModals"
-      :on-success="handleStockOperationSuccess"
-    />
   </div>
 </template>
 
@@ -131,9 +155,8 @@
 import { onMounted, computed, ref, watch } from 'vue';
 import { useInventoryStore } from '@/stores/inventory';
 import { useOrganizationStore } from '@/stores/organization';
-import { Button } from './ui/button';
 import PaginationControl from './ui/PaginationControl.vue';
-import EmptyState from './ui/EmptyState.vue';
+import { Button } from './ui/button';
 import FilterBar from './FilterBar.vue';
 import InventoryCard from './InventoryCard.vue';
 import AddStockModal from './AddStockModal.vue';

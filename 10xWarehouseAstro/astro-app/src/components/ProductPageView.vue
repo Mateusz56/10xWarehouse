@@ -7,6 +7,7 @@ import ProductList from './ProductList.vue';
 import CreateProductModal from './CreateProductModal.vue';
 import EditProductModal from './EditProductModal.vue';
 import DeleteProductModal from './DeleteProductModal.vue';
+import { Button } from './ui/button';
 
 const productStore = useProductStore();
 const organizationStore = useOrganizationStore();
@@ -85,15 +86,12 @@ async function handleSearch() {
           </div>
           
           <div v-if="productStore.canCreateProduct" class="flex items-center space-x-4">
-            <button
-              @click="uiStore.openCreateProductModal()"
-              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <Button @click="uiStore.openCreateProductModal()">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
               Create Product
-            </button>
+            </Button>
           </div>
         </div>
         
@@ -133,12 +131,9 @@ async function handleSearch() {
                 <p>{{ productStore.error }}</p>
               </div>
               <div class="mt-4">
-                <button
-                  @click="handleRetry"
-                  class="bg-red-50 dark:bg-red-900/20 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/30"
-                >
+                <Button variant="outline" size="sm" @click="handleRetry">
                   Try again
-                </button>
+                </Button>
               </div>
             </div>
           </div>
