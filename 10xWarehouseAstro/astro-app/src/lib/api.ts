@@ -74,6 +74,19 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+
+  async register(data: {
+    email: string;
+    password: string;
+    displayName: string;
+    createOrganization: boolean;
+    organizationName?: string;
+  }): Promise<{ user: UserDto; organization?: OrganizationDto }> {
+    return fetchWrapper<{ user: UserDto; organization?: OrganizationDto }>(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export const warehouseApi = {

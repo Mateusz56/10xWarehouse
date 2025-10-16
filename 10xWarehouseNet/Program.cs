@@ -60,6 +60,7 @@ builder.Services.AddScoped<IProductTemplateService, ProductTemplateService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add HTTP context accessor for authorization handler
 builder.Services.AddHttpContextAccessor();

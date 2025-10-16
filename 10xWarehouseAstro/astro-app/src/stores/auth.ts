@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { User } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -25,6 +26,24 @@ export const useAuthStore = defineStore('auth', () => {
       })
       
       if (error) throw error
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function registerWithBackend(email: string, password: string, displayName: string, createOrganization: boolean, organizationName?: string) {
+    loading.value = true
+    try {
+      const data = await api.register({
+        email,
+        password,
+        displayName,
+        createOrganization,
+        organizationName
+      })
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -106,6 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
     isInitialized,
     isAuthenticated,
     signUp,
+    registerWithBackend,
     signIn,
     signOut,
     initializeAuth,

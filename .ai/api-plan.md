@@ -1,6 +1,7 @@
 # REST API Plan
 
 ## 1. Resources
+- **Users**: Manages user profiles and authentication. Corresponds to the `auth.users` table in Supabase.
 - **Organizations**: Manages organizations (tenants). Corresponds to the `app.organizations` table.
 - **Members**: Manages users within an organization. Corresponds to the `app.organization_members` table.
 - **Invitations**: Manages invitations for users to join an organization. Corresponds to the `app.invitations` table.
@@ -12,6 +13,59 @@
 - **Dashboard**: A virtual resource providing aggregated data for the main dashboard.
 
 ## 2. Endpoints
+
+### Authentication & User Management
+
+- **`POST /api/auth/register`**
+  - **Description**: Complete user registration flow after Supabase authentication. Creates user profile and optionally creates their first organization.
+  - **Request Body**:
+    ```json
+    {
+      "email": "user@example.com",
+      "displayName": "John Doe",
+      "createOrganization": true,
+      "organizationName": "My Company" // Required if createOrganization is true
+    }
+    ```
+  - **Response (201 Created)**:
+    ```json
+    {
+      "user": {
+        "id": "uuid",
+        "email": "user@example.com",
+        "displayName": "John Doe"
+      },
+      "organization": {
+        "id": "uuid",
+        "name": "My Company"
+      } // Only included if createOrganization is true
+    }
+    ```
+  - **Error Codes**: `400 Bad Request` (validation error), `409 Conflict` (user already exists).
+  - **Note**: This endpoint should be called after successful Supabase authentication. The JWT token should be validated to ensure the user is authenticated.
+
+- **`GET /api/auth/me`**
+  - **Description**: Get current user profile information.
+  - **Response (200 OK)**:
+    ```json
+    {
+      "id": "uuid",
+      "email": "user@example.com",
+      "displayName": "John Doe"
+    }
+    ```
+  - **Error Codes**: `401 Unauthorized`.
+
+- **`PUT /api/auth/me`**
+  - **Description**: Update current user profile information.
+  - **Request Body**:
+    ```json
+    {
+      "displayName": "Updated Name"
+    }
+    ```
+  - **Response (200 OK)**: Updated user profile object.
+  - **Error Codes**: `400 Bad Request`, `401 Unauthorized`.
 
 ### Organizations
 
@@ -298,8 +352,13 @@
   - Uniqueness constraints (e.g., product barcode per organization) will be enforced, returning a `409 Conflict` if violated.
 
 - **Business Logic**:
+  - **User Registration**: The `POST /api/auth/register` endpoint will handle the complete registration flow:
+    1. Validate the JWT token to ensure the user is authenticated via Supabase.
+    2. Create or update the user profile in the local database.
+    3. If `createOrganization` is true, create a new organization and assign the user as the owner.
+    4. Return the user profile and organization (if created) information.
   - **Inventory Management**: The `POST /api/stock-movements` endpoint will encapsulate the core business logic. When a movement is created, the API will:
     1. Create an immutable `stock_movements` record.
     2. Update the `inventory` summary table in the same transaction to ensure data consistency. For a 'move', this involves decrementing from the source and incrementing at the destination. For 'reconcile', it sets the quantity directly.
   - **Cascading Deletes**: The `DELETE /api/warehouses/{warehouseId}` endpoint will rely on the `ON DELETE CASCADE` constraint defined in the database to automatically remove associated locations. Additional logic may be required to clean up related `inventory` and `stock_movements` records if not handled by the database schema directly.
-  - **User Roles**: When a new organization is created via `POST /api/organizations`, the calling user will be automatically inserted into the `organization_members` table with the `owner` role.
+  - **User Roles**: When a new organization is created via `POST /api/organizations` or during registration, the calling user will be automatically inserted into the `organization_members` table with the `owner` role.

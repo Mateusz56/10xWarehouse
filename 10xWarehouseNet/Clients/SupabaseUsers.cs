@@ -1,3 +1,5 @@
+using Supabase.Gotrue.Exceptions;
+
 namespace _10xWarehouseNet.Clients;
 
 public class SupabaseUsers
@@ -11,9 +13,28 @@ public class SupabaseUsers
         _serviceKey = serviceKey;
     }
 
-    public async Task<Supabase.Gotrue.User?> GetUserById(Guid userId)
+    public async Task<Supabase.Gotrue.User?> RegisterUserAsync(string email, string password, string displayName)
     {
-        var user = await _supabaseClient.AdminAuth(_serviceKey).GetUserById(userId.ToString());
-        return user;
+        try
+        {
+            var signUpOptions = new Supabase.Gotrue.SignUpOptions
+            {
+                Data = new()
+                {
+                    { "display_name", displayName }
+                }
+            };
+
+            var user = await _supabaseClient.Auth.SignUp(email, password, signUpOptions);
+            return user.User;
+        }
+        catch (GotrueException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to register user with Supabase: {ex.Message}", ex);
+        }
     }
 }

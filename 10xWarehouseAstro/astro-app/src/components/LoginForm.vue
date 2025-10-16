@@ -61,6 +61,13 @@ async function handleLogin() {
       <div v-if="error" class="text-red-500 text-sm">
         {{ error }}
       </div>
+
+      <div class="text-center text-sm">
+        <span class="text-gray-600">Don't have an account? </span>
+        <a href="/register" class="text-blue-600 hover:text-blue-500 font-medium">
+          Sign up
+        </a>
+      </div>
     </form>
   </div>
 </template>
