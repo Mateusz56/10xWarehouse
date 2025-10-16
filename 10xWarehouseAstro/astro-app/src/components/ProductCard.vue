@@ -31,7 +31,7 @@ function handleDeleteClick(event: Event) {
 
 <template>
   <div 
-    class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    class="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
     @click="handleCardClick"
     @keydown.enter="handleCardClick"
     @keydown.space.prevent="handleCardClick"
@@ -41,11 +41,11 @@ function handleDeleteClick(event: Event) {
   >
     <div class="flex items-start justify-between">
       <div class="flex-1">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 class="text-lg font-semibold text-foreground mb-2">
           {{ product.name }}
         </h3>
         
-        <div class="space-y-1 text-sm text-gray-600 dark:text-gray-300">
+        <div class="space-y-1 text-sm text-muted-foreground">
           <div v-if="product.barcode" class="flex items-center">
             <span class="font-medium">Barcode:</span>
             <span class="ml-2 font-mono">{{ product.barcode }}</span>

@@ -1,8 +1,39 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { WarehouseVM, WarehouseWithLocationsDto, LocationVM, ProductTemplateVM } from '@/types/dto';
 
 export const useUiStore = defineStore('ui', () => {
+  // Theme management
+  const isDarkMode = ref(true); // Default to dark mode
+  
+  const toggleTheme = () => {
+    isDarkMode.value = !isDarkMode.value;
+    updateTheme();
+  };
+  
+  const updateTheme = () => {
+    const body = document.body;
+    if (isDarkMode.value) {
+      body.classList.add('dark');
+    } else {
+      body.classList.remove('dark');
+    }
+    // Save to localStorage
+    localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
+  };
+  
+  const initializeTheme = () => {
+    // Check localStorage first, then system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      isDarkMode.value = savedTheme === 'dark';
+    } else {
+      // Check system preference
+      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    updateTheme();
+  };
+
   // Organization modals
   const isCreateOrganizationModalOpen = ref(false);
 
@@ -140,6 +171,11 @@ export const useUiStore = defineStore('ui', () => {
   }
 
   return {
+    // Theme management
+    isDarkMode,
+    toggleTheme,
+    initializeTheme,
+    
     // Organization modals
     isCreateOrganizationModalOpen,
     openCreateOrganizationModal,

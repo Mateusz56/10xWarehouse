@@ -21,11 +21,9 @@ onMounted(async () => {
   <div v-if="isInitializing" class="flex items-center justify-center min-h-screen">
     <div class="text-lg">Loading...</div>
   </div>
-  <div v-else-if="authStore.isAuthenticated" class="flex h-screen">
-    <aside class="w-64 bg-gray-100 dark:bg-gray-800">
-      <SidebarNav />
-    </aside>
-    <main class="flex-1">
+  <div v-else-if="authStore.isAuthenticated" class="flex min-h-screen">
+    <SidebarNav />
+    <main class="flex-1 overflow-auto">
       <slot></slot>
     </main>
     <CreateOrganizationModal />

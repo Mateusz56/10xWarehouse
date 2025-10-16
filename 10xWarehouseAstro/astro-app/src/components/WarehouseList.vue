@@ -32,17 +32,17 @@ const isEmpty = computed(() => !props.loading && props.warehouses.length === 0);
 
     <!-- Empty State -->
     <div v-else-if="isEmpty" class="text-center py-12">
-      <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No warehouses</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <h3 class="mt-2 text-sm font-medium text-foreground">No warehouses</h3>
+      <p class="mt-1 text-sm text-muted-foreground">
         Get started by creating your first warehouse.
       </p>
       <div v-if="warehouseStore.canCreateWarehouse" class="mt-6">
         <button
           @click="uiStore.openCreateWarehouseModal()"
-          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
         >
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

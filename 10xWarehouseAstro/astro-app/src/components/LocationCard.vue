@@ -23,16 +23,16 @@ function handleDeleteClick(event: Event) {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+  <div class="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
     <div class="flex items-start justify-between">
       <div class="flex-1">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 class="text-lg font-semibold text-foreground mb-2">
           {{ location.name }}
         </h3>
-        <div v-if="location.description" class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        <div v-if="location.description" class="text-sm text-muted-foreground mb-3">
           {{ location.description }}
         </div>
-        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+        <div class="flex items-center text-sm text-muted-foreground">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
           </svg>

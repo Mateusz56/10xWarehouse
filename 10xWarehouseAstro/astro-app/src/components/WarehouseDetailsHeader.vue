@@ -27,41 +27,41 @@ function handleBackToWarehouses() {
 <template>
   <div class="mb-8">
     <!-- Breadcrumb Navigation -->
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+    <nav class="flex items-center space-x-2 text-sm text-muted-foreground mb-6">
       <button 
         @click="handleBackToWarehouses"
-        class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        class="hover:text-foreground transition-colors"
       >
         Warehouses
       </button>
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
-      <span class="text-gray-900 dark:text-white font-medium">{{ warehouse.name }}</span>
+      <span class="text-foreground font-medium">{{ warehouse.name }}</span>
     </nav>
 
     <!-- Warehouse Header -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div class="bg-card rounded-lg border border-border p-6">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <div class="flex items-center space-x-4 mb-4">
-            <div class="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
             <div>
-              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 class="text-2xl font-bold text-foreground">
                 {{ warehouse.name }}
               </h1>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
+              <p class="text-sm text-muted-foreground">
                 Warehouse ID: {{ warehouse.id.slice(0, 8) }}...
               </p>
             </div>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center text-sm text-muted-foreground">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -69,14 +69,14 @@ function handleBackToWarehouses() {
               <span>{{ warehouse.locations.length }} locations</span>
             </div>
             
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center text-sm text-muted-foreground">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               <span>Organization: {{ warehouse.organizationId.slice(0, 8) }}...</span>
             </div>
             
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex items-center text-sm text-muted-foreground">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>

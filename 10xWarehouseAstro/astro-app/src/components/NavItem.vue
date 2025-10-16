@@ -12,8 +12,8 @@ defineProps<{
     <a 
       :href="item.to" 
       :class="[
-        'flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group',
-        { 'bg-gray-200 dark:bg-gray-700': isActive }
+        'flex items-center p-2 text-sidebar-foreground rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group',
+        { 'bg-sidebar-primary text-sidebar-primary-foreground': isActive }
       ]"
     >
       <!-- Icon will go here -->

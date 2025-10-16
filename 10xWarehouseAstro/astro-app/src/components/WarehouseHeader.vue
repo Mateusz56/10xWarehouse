@@ -10,8 +10,8 @@ const warehouseStore = useWarehouseStore();
 <template>
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Warehouses</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">
+      <h1 class="text-3xl font-bold text-foreground">Warehouses</h1>
+      <p class="text-muted-foreground mt-1">
         Manage your organization's warehouses and locations
       </p>
     </div>

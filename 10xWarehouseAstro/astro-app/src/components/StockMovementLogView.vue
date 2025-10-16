@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-background">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="mb-8">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Stock Movement Log</h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <h1 class="text-3xl font-bold text-foreground">Stock Movement Log</h1>
+            <p class="mt-2 text-sm text-muted-foreground">
               Complete audit trail of all inventory changes
             </p>
           </div>
@@ -36,43 +36,43 @@
       </div>
 
       <!-- Data Table -->
-      <div v-else-if="!loading && hasMovements" class="bg-white shadow overflow-hidden sm:rounded-md dark:bg-gray-800">
+      <div v-else-if="!loading && hasMovements" class="bg-card shadow overflow-hidden sm:rounded-md">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-muted">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[150px]">
+                <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[150px]">
                   Date
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[200px]">
+                <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[200px]">
                   Product
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px]">
+                <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[120px]">
                   Type
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[120px]">
+                <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider w-[120px]">
                   Quantity Change
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[200px]">
+                <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[200px]">
                   Location(s)
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[100px]">
+                <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider w-[100px]">
                   Before
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[100px]">
+                <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider w-[100px]">
                   After
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-              <tr v-for="movement in movements" :key="movement.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+            <tbody class="bg-card divide-y divide-border">
+              <tr v-for="movement in movements" :key="movement.id" class="hover:bg-muted/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                   {{ formatDate(movement.createdAt) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                   {{ getProductById(movement.productTemplateId).name }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                   <span :class="getMovementTypeClass(movement.movementType)">
                     {{ movement.movementType }}
                   </span>
@@ -82,13 +82,13 @@
                     {{ formatDelta(movement.delta) }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                   {{ formatLocations(movement) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
                   {{ calculateQuantityBefore(movement) }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
                   {{ calculateQuantityAfter(movement) }}
                 </td>
               </tr>
@@ -97,7 +97,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="px-6 py-4 border-t border-border">
           <PaginationControl
             :pagination="pagination"
             @page-change="handlePageChange"
@@ -108,11 +108,11 @@
 
       <!-- Empty State -->
       <div v-else-if="!loading && !hasMovements" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No stock movements found</h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <h3 class="mt-2 text-sm font-medium text-foreground">No stock movements found</h3>
+        <p class="mt-1 text-sm text-muted-foreground">
           There are no stock movements recorded for this organization yet.
         </p>
       </div>
@@ -120,8 +120,8 @@
       <!-- Loading State -->
       <div v-else-if="loading" class="flex items-center justify-center p-8">
         <div class="flex items-center space-x-2">
-          <div class="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
-          <span class="text-sm text-gray-600 dark:text-gray-400">Loading stock movements...</span>
+          <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          <span class="text-sm text-muted-foreground">Loading stock movements...</span>
         </div>
       </div>
     </div>

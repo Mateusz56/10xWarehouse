@@ -46,8 +46,8 @@ function handlePageSizeChange(event: Event) {
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-    <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+  <div class="flex items-center justify-between px-4 py-3 bg-card border-t border-border">
+    <div class="flex items-center text-sm text-muted-foreground">
       <span>
         Showing {{ ((pagination?.page || 1) - 1) * (pagination?.pageSize || 10) + 1 }} to 
         {{ Math.min((pagination?.page || 1) * (pagination?.pageSize || 10), pagination?.total || 0) }} of 
@@ -58,12 +58,12 @@ function handlePageSizeChange(event: Event) {
     <div class="flex items-center space-x-4">
       <!-- Page Size Selector -->
       <div class="flex items-center space-x-2">
-        <label for="pageSize" class="text-sm text-gray-700 dark:text-gray-300">Show:</label>
+        <label for="pageSize" class="text-sm text-muted-foreground">Show:</label>
         <select
           id="pageSize"
           :value="pagination?.pageSize || 10"
           @change="handlePageSizeChange"
-          class="text-sm border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          class="text-sm border border-input rounded-md px-2 py-1 bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-ring"
         >
           <option v-for="size in pageSizeOptions" :key="size" :value="size">
             {{ size }}
@@ -92,7 +92,7 @@ function handlePageSizeChange(event: Event) {
             v-if="page === (pagination?.page || 1)"
             variant="default"
             size="sm"
-            class="bg-blue-600 text-white hover:bg-blue-700"
+            class="bg-primary text-primary-foreground hover:bg-primary/90"
             :aria-label="`Current page ${page}`"
             aria-current="page"
           >

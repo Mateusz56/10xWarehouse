@@ -5,6 +5,7 @@ import { useOrganizationStore } from '@/stores/organization';
 import WarehouseHeader from './WarehouseHeader.vue';
 import WarehouseList from './WarehouseList.vue';
 import PaginationControl from './PaginationControl.vue';
+import { Button } from './ui/button';
 import CreateWarehouseModal from './CreateWarehouseModal.vue';
 import EditWarehouseModal from './EditWarehouseModal.vue';
 import DeleteConfirmationModal from './DeleteConfirmationModal.vue';
@@ -74,34 +75,31 @@ async function handleRetry() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen bg-background">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <WarehouseHeader />
       
       <!-- Error State -->
       <div v-if="warehouseStore.error" class="mb-6">
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+        <div class="bg-destructive/10 border border-destructive/50 rounded-md p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg class="h-5 w-5 text-destructive" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
               </svg>
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+              <h3 class="text-sm font-medium text-destructive">
                 Error loading warehouses
               </h3>
-              <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+              <div class="mt-2 text-sm text-destructive">
                 <p>{{ warehouseStore.error }}</p>
               </div>
               <div class="mt-4">
-                <button
-                  @click="handleRetry"
-                  class="bg-red-50 dark:bg-red-900/20 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/30"
-                >
+                <Button variant="outline" size="sm" @click="handleRetry">
                   Try again
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -109,7 +107,7 @@ async function handleRetry() {
       </div>
       
       <!-- Main Content -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div class="bg-card rounded-lg shadow">
         <!-- Warehouse List -->
         <div class="p-6">
           <WarehouseList 
@@ -119,12 +117,13 @@ async function handleRetry() {
         </div>
         
         <!-- Pagination -->
-        <PaginationControl
-          v-if="warehouseStore.hasWarehouses && !warehouseStore.loading"
-          :pagination="warehouseStore.pagination"
-          @page-change="handlePageChange"
-          @page-size-change="handlePageSizeChange"
-        />
+        <div v-if="warehouseStore.hasWarehouses && !warehouseStore.loading" class="px-6 py-4 border-t border-border">
+          <PaginationControl
+            :pagination="warehouseStore.pagination"
+            @page-change="handlePageChange"
+            @page-size-change="handlePageSizeChange"
+          />
+        </div>
       </div>
     </div>
     
