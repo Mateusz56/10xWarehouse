@@ -6,6 +6,7 @@ import WarehouseDetailsHeader from './WarehouseDetailsHeader.vue';
 import WarehouseLocationsSection from './WarehouseLocationsSection.vue';
 import CreateLocationModal from './CreateLocationModal.vue';
 import EditLocationModal from './EditLocationModal.vue';
+import EditWarehouseModal from './EditWarehouseModal.vue';
 import DeleteConfirmationModal from './DeleteConfirmationModal.vue';
 
 interface Props {
@@ -207,6 +208,7 @@ function navigateToWarehouses() {
       <!-- Modals -->
       <CreateLocationModal />
       <EditLocationModal />
+      <EditWarehouseModal />
       <DeleteConfirmationModal />
     </div>
   </div>

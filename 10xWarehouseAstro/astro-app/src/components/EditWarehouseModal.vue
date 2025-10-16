@@ -68,7 +68,12 @@ const onSubmit = handleSubmit(async (values) => {
       await warehouseStore.updateWarehouse(selectedWarehouse.id, values);
     }
     
-    uiStore.closeEditWarehouseModal();
+    // Close the appropriate modal based on context
+    if (uiStore.selectedWarehouseDetails) {
+      uiStore.closeEditWarehouseDetailsModal();
+    } else {
+      uiStore.closeEditWarehouseModal();
+    }
     resetForm();
     console.log('Warehouse updated successfully!');
   } catch (err) {
@@ -78,7 +83,12 @@ const onSubmit = handleSubmit(async (values) => {
 
 const handleModalUpdate = (open: boolean) => {
   if (!open) {
-    uiStore.closeEditWarehouseModal();
+    // Close the appropriate modal based on context
+    if (uiStore.selectedWarehouseDetails) {
+      uiStore.closeEditWarehouseDetailsModal();
+    } else {
+      uiStore.closeEditWarehouseModal();
+    }
     resetForm();
     error.value = null;
   }
@@ -121,7 +131,7 @@ defineExpose({
       </form>
 
       <DialogFooter>
-        <Button variant="outline" @click="uiStore.closeEditWarehouseModal()">
+        <Button variant="outline" @click="handleModalUpdate(false)">
           Cancel
         </Button>
         <Button 
