@@ -13,11 +13,13 @@ namespace _10xWarehouseNet.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IOrganizationService _organizationService;
+        private readonly IUserService _userService;
         private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IOrganizationService organizationService, ILogger<UsersController> logger)
+        public UsersController(IOrganizationService organizationService, IUserService userService, ILogger<UsersController> logger)
         {
             _organizationService = organizationService;
+            _userService = userService;
             _logger = logger;
         }
 
@@ -25,8 +27,6 @@ namespace _10xWarehouseNet.Controllers
         public async Task<IActionResult> GetCurrentUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var displayName = User.FindFirstValue("metadata.display_name") ?? email;
 
             if (string.IsNullOrEmpty(userId))
             {
@@ -35,14 +35,17 @@ namespace _10xWarehouseNet.Controllers
 
             try
             {
+                // Get user profile from Supabase (includes display name from metadata)
+                var userProfile = await _userService.GetUserProfileAsync(userId);
+                
                 // Get user memberships from database
                 var memberships = await _organizationService.GetUserMembershipsAsync(userId);
 
                 var userDto = new UserDto
                 {
                     Id = userId,
-                    Email = email ?? "",
-                    DisplayName = displayName,
+                    Email = userProfile.Email,
+                    DisplayName = userProfile.DisplayName,
                     Memberships = memberships.ToList()
                 };
 

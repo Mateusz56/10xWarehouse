@@ -18,16 +18,16 @@ builder.Services.AddDbContext<WarehouseDbContext>(options =>
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
 var supabaseServiceRoleKey = builder.Configuration["Supabase:ServiceRoleKey"]!;
 
-builder.Services.AddSingleton(new Supabase.Client(supabaseUrl, supabaseServiceRoleKey));
+builder.Services.AddScoped(provider => new Supabase.Client(supabaseUrl, supabaseServiceRoleKey));
 
-builder.Services.AddScoped<SupabaseUsers>(provider =>
+builder.Services.AddScoped(provider =>
 {
     var supabaseClient = provider.GetRequiredService<Supabase.Client>();
     return new SupabaseUsers(supabaseClient, supabaseServiceRoleKey);
 });
 
 // Add authentication services
-builder.Services.AddScoped<SupabaseJwtAuthenticationService>(provider =>
+builder.Services.AddScoped(provider =>
 {
     var supabaseClient = provider.GetRequiredService<Supabase.Client>();
     return new SupabaseJwtAuthenticationService(supabaseClient, supabaseServiceRoleKey);

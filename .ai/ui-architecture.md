@@ -27,6 +27,11 @@ This document outlines the user interface architecture, key components, and user
 -   **Inventory Summary**: A card-based view. Each card represents a unique product-location combination. A filter bar at the top will allow filtering by location, product, and a "low stock" toggle.
 -   **Stock Movement Log**: A read-only data grid.
     -   **Columns**: `Date`, `Product`, `Movement Type`, `Quantity Change` (delta), `Location(s)`, `Calculated Quantity Before`, and `Quantity After`.
+-   **Profile Page**: A single-column layout featuring user account management.
+    -   **Display Name Section**: A form card allowing users to update their display name with real-time validation and a "Save Changes" button.
+    -   **Password Change Section**: A separate form card for password updates, requiring current password confirmation and new password with strength indicator.
+    -   **Account Information**: Read-only display of user email and account creation date.
+    -   **Security Actions**: Additional options for account security (e.g., logout from all devices, if supported by the backend).
 
 ## 3. Core UI Components & Patterns
 

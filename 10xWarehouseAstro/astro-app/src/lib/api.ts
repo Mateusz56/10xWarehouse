@@ -2,6 +2,7 @@ import type {
   CreateOrganizationRequestDto, 
   OrganizationDto, 
   UserDto,
+  UserProfileDto,
   WarehouseDto,
   WarehouseWithLocationsDto,
   CreateWarehouseRequestDto,
@@ -87,6 +88,40 @@ export const api = {
       body: JSON.stringify(data),
     });
   },
+
+  async updateDisplayName(data: { displayName: string }, retries = 3): Promise<UserProfileDto> {
+    try {
+      const response = await fetchWrapper<UserProfileDto>(`${API_BASE_URL}/auth/me`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      return response;
+    } catch (error: any) {
+      if (retries > 0 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
+        // Retry on network errors
+        await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries))); // Exponential backoff
+        return this.updateDisplayName(data, retries - 1);
+      }
+      throw error;
+    }
+  },
+
+  async changePassword(data: { currentPassword: string; newPassword: string }, retries = 3): Promise<{ message: string }> {
+    try {
+      const response = await fetchWrapper<{ message: string }>(`${API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      return response;
+    } catch (error: any) {
+      if (retries > 0 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
+        // Retry on network errors
+        await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries))); // Exponential backoff
+        return this.changePassword(data, retries - 1);
+      }
+      throw error;
+    }
+  }
 };
 
 export const warehouseApi = {
@@ -271,5 +306,6 @@ export const inventoryApi = {
     }
     
     return allLocations;
-  }
+  },
+
 };

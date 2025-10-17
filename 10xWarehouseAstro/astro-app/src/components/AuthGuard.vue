@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
@@ -13,7 +13,15 @@ onMounted(async () => {
   
   isInitializing.value = false
   
-  if (!authStore.isAuthenticated) {
+  // Don't redirect if password change is in progress
+  if (!authStore.isAuthenticated && !authStore.isPasswordChangeInProgress) {
+    window.location.href = '/login'
+  }
+})
+
+// Watch for auth changes after mount
+watch(() => authStore.isAuthenticated, (isAuth) => {
+  if (!isInitializing.value && !isAuth && !authStore.isPasswordChangeInProgress) {
     window.location.href = '/login'
   }
 })

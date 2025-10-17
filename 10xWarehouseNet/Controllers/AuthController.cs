@@ -65,6 +65,7 @@ namespace _10xWarehouseNet.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var email = User.FindFirstValue(ClaimTypes.Email);
 
                 if (string.IsNullOrEmpty(userId))
                 {
@@ -72,6 +73,9 @@ namespace _10xWarehouseNet.Controllers
                 }
 
                 var updatedProfile = await _userService.UpdateUserProfileAsync(userId, request);
+                
+                // Set email from JWT token
+                updatedProfile.Email = email ?? "";
 
                 return Ok(updatedProfile);
             }
@@ -89,6 +93,40 @@ namespace _10xWarehouseNet.Controllers
             {
                 _logger.LogError(ex, "Unexpected error during profile update");
                 return StatusCode(500, "An unexpected error occurred during profile update.");
+            }
+        }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User ID not found in token.");
+                }
+
+                await _userService.ChangeUserPasswordAsync(userId, request);
+                
+                return Ok(new { message = "Password changed successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Invalid argument in password change request");
+                return BadRequest(ex.Message);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                _logger.LogError(ex, "Database error during password change");
+                return StatusCode(500, "A database error occurred during password change.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during password change");
+                return StatusCode(500, "An unexpected error occurred during password change.");
             }
         }
     }

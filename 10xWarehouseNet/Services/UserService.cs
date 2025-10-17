@@ -81,17 +81,21 @@ public class UserService : IUserService
     {
         try
         {
-            // Get user from Supabase via the existing UsersController logic
-            // This is a simplified version - in practice, you might want to cache this
-            var userMemberships = await _organizationService.GetUserMembershipsAsync(userId);
+            // Get user from Supabase Admin API
+            var user = await _supabaseUsers.GetUserByIdAsync(userId);
             
-            // For now, we'll return basic profile info
-            // In a real implementation, you might want to store additional user profile data
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+            
+            var displayName = user.UserMetadata?.GetValueOrDefault("display_name")?.ToString() ?? user.Email ?? "";
+            
             return new UserProfileDto
             {
                 Id = userId,
-                Email = "", // This would come from the JWT token in the controller
-                DisplayName = "" // This would come from the JWT token in the controller
+                Email = user.Email ?? "",
+                DisplayName = displayName
             };
         }
         catch (Exception ex)
@@ -105,19 +109,17 @@ public class UserService : IUserService
     {
         try
         {
-            // In this implementation, we don't store user profile data locally
-            // The display name comes from Supabase metadata
-            // This method is here for API consistency but would need to be implemented
-            // by updating Supabase user metadata
+            // Update display name in Supabase metadata
+            await _supabaseUsers.UpdateUserDisplayNameAsync(userId, request.DisplayName);
             
             _logger.LogInformation("User profile update requested for user {UserId} - DisplayName: {DisplayName}", 
                 userId, request.DisplayName);
             
-            // For now, return the updated profile
+            // Return updated profile
             return new UserProfileDto
             {
                 Id = userId,
-                Email = "", // Would come from JWT
+                Email = "", // Will be populated from JWT in controller
                 DisplayName = request.DisplayName
             };
         }
@@ -125,6 +127,23 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, "Error updating user profile for user {UserId}", userId);
             throw new DatabaseOperationException("An error occurred while updating user profile.", ex);
+        }
+    }
+
+    public async Task<bool> ChangeUserPasswordAsync(string userId, ChangePasswordRequestDto request)
+    {
+        try
+        {
+            // Update password using Supabase Admin API
+            await _supabaseUsers.ChangeUserPasswordAsync(userId, request.NewPassword);
+            
+            _logger.LogInformation("Password changed successfully for user {UserId}", userId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing password for user {UserId}", userId);
+            throw new DatabaseOperationException("An error occurred while changing password.", ex);
         }
     }
 }

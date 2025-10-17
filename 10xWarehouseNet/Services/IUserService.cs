@@ -7,4 +7,5 @@ public interface IUserService
     Task<RegisterResponseDto> RegisterUserAsync(RegisterRequestDto request);
     Task<UserProfileDto> GetUserProfileAsync(string userId);
     Task<UserProfileDto> UpdateUserProfileAsync(string userId, UpdateUserProfileRequestDto request);
+    Task<bool> ChangeUserPasswordAsync(string userId, ChangePasswordRequestDto request);
 }

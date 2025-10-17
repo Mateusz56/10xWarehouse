@@ -280,3 +280,38 @@ export interface StockOperationModalProps {
   onSuccess: () => void;
   inventory?: InventorySummaryDto;
 }
+
+// Profile View Types
+export interface DisplayNameFormData {
+  displayName: string;
+}
+
+export interface PasswordChangeFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface PasswordStrength {
+  score: number; // 0-4
+  label: 'Very Weak' | 'Weak' | 'Fair' | 'Good' | 'Strong';
+  color: 'red' | 'orange' | 'yellow' | 'blue' | 'green';
+  feedback: string[];
+}
+
+export interface UserProfileDto {
+  id: string;
+  email: string;
+  displayName: string;
+}
+
+export interface ProfilePageState {
+  user: UserProfileDto | null;
+  accountCreatedAt: string | null;
+  displayNameLoading: boolean;
+  passwordChangeLoading: boolean;
+  displayNameError: string | null;
+  passwordChangeError: string | null;
+  displayNameSuccess: string | null;
+  passwordChangeSuccess: string | null;
+}
