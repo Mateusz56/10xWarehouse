@@ -146,4 +146,32 @@ public class UserService : IUserService
             throw new DatabaseOperationException("An error occurred while changing password.", ex);
         }
     }
+
+    public async Task<List<UserSearchResult>> SearchUsersAsync(string query, int limit = 10)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return new List<UserSearchResult>();
+            }
+
+            var users = await _supabaseUsers.SearchUsersAsync(query, limit);
+            
+            var searchResults = users.Select(user => new UserSearchResult
+            {
+                Id = user.Id.ToString(),
+                Email = user.Email ?? string.Empty,
+                DisplayName = user.UserMetadata?.GetValueOrDefault("display_name")?.ToString() ?? string.Empty
+            }).ToList();
+
+            _logger.LogInformation("Found {Count} users matching query '{Query}'", searchResults.Count, query);
+            return searchResults;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching users with query '{Query}'", query);
+            throw new DatabaseOperationException("An error occurred while searching users.", ex);
+        }
+    }
 }

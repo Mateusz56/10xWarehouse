@@ -35,6 +35,7 @@ const navItems = computed<NavItemVM[]>(() => {
     { to: '/warehouses', label: 'Warehouses', icon: '' },
     { to: '/products', label: 'Products', icon: '' },
     { to: '/movements', label: 'Stock Movements', icon: '' },
+    { to: '/invitations', label: 'My Invitations', icon: '' },
     { to: '/profile', label: 'Profile', icon: '' },
     { to: '/settings/organization', label: 'Settings', icon: '', requiredRole: 'Owner' },
   ];

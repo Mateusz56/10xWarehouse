@@ -72,7 +72,45 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
     });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddSwaggerGen();
+// Swagger UI will be available at: https://localhost:7146/swagger/index.html
+// To use Bearer token authentication:
+// 1. Click the "Authorize" button in Swagger UI
+// 2. Enter your JWT token in the format: "Bearer your-jwt-token-here"
+// 3. Click "Authorize" to apply the token to all requests
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+    { 
+        Title = "10xWarehouse API", 
+        Version = "v1",
+        Description = "API for 10xWarehouse inventory management system. Use the 'Authorize' button to add your JWT Bearer token."
+    });
+    
+    // Add JWT Bearer token authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -93,7 +131,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "10xWarehouse API v1");
+        // Keep default Swagger UI path: /swagger/index.html
+        c.DocumentTitle = "10xWarehouse API Documentation";
+        c.DefaultModelsExpandDepth(-1); // Hide models section by default
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List); // Expand only the list of operations
+    });
 }
 
 app.UseHttpsRedirection();

@@ -67,5 +67,35 @@ namespace _10xWarehouseNet.Controllers
                 return StatusCode(500, "An unexpected error occurred while retrieving user data.");
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string query, [FromQuery] int limit = 10)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query parameter is required.");
+            }
+
+            if (limit <= 0 || limit > 50)
+            {
+                return BadRequest("Limit must be between 1 and 50.");
+            }
+
+            try
+            {
+                var users = await _userService.SearchUsersAsync(query, limit);
+                return Ok(users);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                _logger.LogError(ex, "Database error while searching users with query '{Query}'", query);
+                return StatusCode(500, "A database error occurred while searching users.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while searching users with query '{Query}'", query);
+                return StatusCode(500, "An unexpected error occurred while searching users.");
+            }
+        }
     }
 }

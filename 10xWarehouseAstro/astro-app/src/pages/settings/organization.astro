@@ -1,0 +1,11 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import AuthGuard from '@/components/AuthGuard.vue';
+import OrganizationSettingsView from '@/components/organization/OrganizationSettingsView.vue';
+---
+
+<MainLayout title="Organization Settings - 10xWarehouse">
+  <AuthGuard client:load>
+    <OrganizationSettingsView client:load />
+  </AuthGuard>
+</MainLayout>

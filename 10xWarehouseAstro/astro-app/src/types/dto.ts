@@ -315,3 +315,95 @@ export interface ProfilePageState {
   displayNameSuccess: string | null;
   passwordChangeSuccess: string | null;
 }
+
+// Organization Management Types
+export interface OrganizationMemberDto {
+  userId: string | null;
+  email: string;
+  role: 'Owner' | 'Member' | 'Viewer';
+  status: 'Accepted' | 'Pending';
+}
+
+export interface InvitationDto {
+  id: string;
+  invitedUserId: string;
+  role: 'Owner' | 'Member' | 'Viewer';
+  status: 'Pending' | 'Accepted' | 'Declined';
+}
+
+export interface UserInvitationDto {
+  id: string;
+  organizationName: string;
+  role: 'Owner' | 'Member' | 'Viewer';
+  invitedAt: string; // ISO date string
+}
+
+export interface UserSearchResult {
+  id: string;
+  email: string;
+  displayName: string;
+}
+
+export interface CreateInvitationRequestDto {
+  invitedUserId: string;
+  role: 'Member' | 'Viewer';
+}
+
+export interface UpdateOrganizationRequestDto {
+  name: string;
+}
+
+// My Invitations State
+export interface MyInvitationsState {
+  invitations: UserInvitationDto[];
+  loading: boolean;
+  error: string | null;
+  processingInvitations: Set<string>; // IDs of invitations being processed
+}
+
+// Organization Settings State
+export interface OrganizationSettingsState {
+  organization: OrganizationVM | null;
+  members: OrganizationMemberDto[];
+  invitations: InvitationDto[];
+  loading: boolean;
+  error: string | null;
+  membersPagination: PaginationDto;
+  invitationsPagination: PaginationDto;
+  currentMembersPage: number;
+  currentInvitationsPage: number;
+  pageSize: number;
+  isInviteModalOpen: boolean;
+  inviteLoading: boolean;
+  inviteError: string | null;
+}
+
+// Component Props
+export interface InvitationCardProps {
+  invitation: UserInvitationDto;
+  loading: boolean;
+  disabled: boolean;
+}
+
+export interface MemberCardProps {
+  member: OrganizationMemberDto;
+  onRemove: (userId: string) => void;
+  currentUserId: string;
+  loading: boolean;
+}
+
+export interface InviteUserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: CreateInvitationRequestDto) => void;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface RoleDisplay {
+  label: string;
+  color: string;
+  description: string;
+}
+
+export type InvitationAction = 'accept' | 'decline';

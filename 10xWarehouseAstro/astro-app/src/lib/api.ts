@@ -19,7 +19,13 @@ import type {
   ProductSummaryDto,
   LocationSummaryDto,
   InventoryFilters,
-  StockOperationType
+  StockOperationType,
+  OrganizationMemberDto,
+  InvitationDto,
+  UserInvitationDto,
+  CreateInvitationRequestDto,
+  UpdateOrganizationRequestDto,
+  UserSearchResult
 } from "@/types/dto";
 import { useAuthStore } from '@/stores/auth';
 
@@ -308,4 +314,66 @@ export const inventoryApi = {
     return allLocations;
   },
 
+};
+
+export const organizationApi = {
+  async getOrganizations(page: number = 1, pageSize: number = 10): Promise<PaginatedResponseDto<OrganizationDto>> {
+    return fetchWrapper<PaginatedResponseDto<OrganizationDto>>(
+      `${API_BASE_URL}/organizations?page=${page}&pageSize=${pageSize}`
+    );
+  },
+
+  async updateOrganization(orgId: string, data: UpdateOrganizationRequestDto): Promise<OrganizationDto> {
+    return fetchWrapper<OrganizationDto>(`${API_BASE_URL}/organizations/${orgId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getOrganizationMembers(orgId: string, page: number = 1, pageSize: number = 10): Promise<PaginatedResponseDto<OrganizationMemberDto>> {
+    return fetchWrapper<PaginatedResponseDto<OrganizationMemberDto>>(
+      `${API_BASE_URL}/organizations/${orgId}/members?page=${page}&pageSize=${pageSize}`
+    );
+  },
+
+  async createInvitation(orgId: string, data: CreateInvitationRequestDto): Promise<InvitationDto> {
+    return fetchWrapper<InvitationDto>(`${API_BASE_URL}/organizations/${orgId}/invitations`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async removeOrganizationMember(orgId: string, userId: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/organizations/${orgId}/members/${userId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async cancelInvitation(orgId: string, invitationId: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/organizations/${orgId}/invitations/${invitationId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async searchUsers(query: string, limit: number = 10): Promise<UserSearchResult[]> {
+    return fetchWrapper<UserSearchResult[]>(`${API_BASE_URL}/users/search?query=${encodeURIComponent(query)}&limit=${limit}`);
+  }
+};
+
+export const invitationsApi = {
+  async getUserInvitations(): Promise<{ data: UserInvitationDto[] }> {
+    return fetchWrapper<{ data: UserInvitationDto[] }>(`${API_BASE_URL}/invitations`);
+  },
+
+  async acceptInvitation(invitationId: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/invitations/${invitationId}/accept`, {
+      method: 'POST',
+    });
+  },
+
+  async declineInvitation(invitationId: string): Promise<void> {
+    return fetchWrapper<void>(`${API_BASE_URL}/invitations/${invitationId}/decline`, {
+      method: 'POST',
+    });
+  }
 };

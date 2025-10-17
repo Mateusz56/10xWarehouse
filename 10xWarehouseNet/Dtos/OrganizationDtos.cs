@@ -18,6 +18,13 @@ public record UserDto
     public List<MembershipDto> Memberships { get; set; } = new();
 }
 
+public record UserSearchResult
+{
+    public string Id { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+}
+
 public record MembershipDto
 {
     public string OrganizationId { get; set; } = string.Empty;
