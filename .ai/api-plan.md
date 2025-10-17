@@ -106,6 +106,23 @@
     ```
   - **Error Codes**: `400 Bad Request` (validation error), `401 Unauthorized`.
 
+- **`PUT /api/organizations/{orgId}`**
+  - **Description**: Update an organization's name. (Requires 'Owner' role).
+  - **Request Body**:
+    ```json
+    {
+      "name": "string"
+    }
+    ```
+  - **Response (200 OK)**:
+    ```json
+    {
+      "id": "uuid",
+      "name": "string"
+    }
+    ```
+  - **Error Codes**: `400 Bad Request` (validation error), `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
 ### Members & Invitations (Scoped to an Organization)
 
 - **`GET /api/organizations/{orgId}/members`**

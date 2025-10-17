@@ -44,3 +44,12 @@ public class DatabaseOperationException : Exception
     public DatabaseOperationException(string message) : base(message) { }
     public DatabaseOperationException(string message, Exception innerException) : base(message, innerException) { }
 }
+
+/// <summary>
+/// Exception thrown when organization is not found
+/// </summary>
+public class OrganizationNotFoundException : Exception
+{
+    public OrganizationNotFoundException(string message) : base(message) { }
+    public OrganizationNotFoundException(string message, Exception innerException) : base(message, innerException) { }
+}

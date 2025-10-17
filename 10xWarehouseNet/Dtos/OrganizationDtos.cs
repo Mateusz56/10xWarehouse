@@ -32,8 +32,34 @@ public record CreateOrganizationRequestDto
     public string Name { get; set; }
 }
 
+public record UpdateOrganizationRequestDto
+{
+    [Required]
+    [StringLength(100)]
+    public string Name { get; set; }
+}
+
+public record CreateInvitationRequestDto
+{
+    [Required]
+    public Guid InvitedUserId { get; set; }
+    
+    [Required]
+    public UserRole Role { get; set; }
+}
+
+public record UserInvitationDto
+{
+    public Guid Id { get; set; }
+    public string OrganizationName { get; set; } = string.Empty;
+    public UserRole Role { get; set; }
+    public DateTime InvitedAt { get; set; }
+}
+
 // Command/Request Models
 
 public record CreateOrganizationCommand(string Name);
+
+public record UpdateOrganizationCommand(Guid OrganizationId, string Name);
 
 public record CreateInvitationCommand(Guid InvitedUserId, UserRole Role);
