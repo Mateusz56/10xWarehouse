@@ -92,170 +92,96 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { organizationApi } from '@/lib/api';
+import { onMounted, ref, computed } from 'vue';
 import { useOrganizationStore } from '@/stores/organization';
-import { useAuthStore } from '@/stores/auth';
-import type { OrganizationSettingsState, CreateInvitationRequestDto, UpdateOrganizationRequestDto } from '@/types/dto';
+import { useOrganizationSettingsStore } from '@/stores/organizationSettings';
+import type { CreateInvitationRequestDto, UpdateOrganizationRequestDto } from '@/types/dto';
 import OrganizationInfoSection from './OrganizationInfoSection.vue';
 import MembersSection from './MembersSection.vue';
 import InvitationsSection from './InvitationsSection.vue';
 import InviteUserModal from './InviteUserModal.vue';
 
 const organizationStore = useOrganizationStore();
-const authStore = useAuthStore();
+const settingsStore = useOrganizationSettingsStore();
 
-const state = ref<OrganizationSettingsState>({
-  organization: null,
-  members: [],
-  invitations: [],
-  loading: false,
-  error: null,
-  membersPagination: { page: 1, pageSize: 10, total: 0 },
-  invitationsPagination: { page: 1, pageSize: 10, total: 0 },
-  currentMembersPage: 1,
-  currentInvitationsPage: 1,
-  pageSize: 10,
-  isInviteModalOpen: false,
-  inviteLoading: false,
-  inviteError: null
-});
+// Use computed properties to ensure reactivity
+const organization = computed(() => settingsStore.organization);
+const members = computed(() => settingsStore.members);
+const invitations = computed(() => settingsStore.invitations);
+const loading = computed(() => settingsStore.loading);
+const error = computed(() => settingsStore.error);
+const membersPagination = computed(() => settingsStore.membersPagination);
+const invitationsPagination = computed(() => settingsStore.invitationsPagination);
 
-// Use computed properties to access reactive state
-const organization = computed(() => state.value.organization);
-const members = computed(() => state.value.members);
-const invitations = computed(() => state.value.invitations);
-const loading = computed(() => state.value.loading);
-const error = computed(() => state.value.error);
-const membersPagination = computed(() => state.value.membersPagination);
-const invitationsPagination = computed(() => state.value.invitationsPagination);
-const isInviteModalOpen = computed(() => state.value.isInviteModalOpen);
-const inviteLoading = computed(() => state.value.inviteLoading);
-const inviteError = computed(() => state.value.inviteError);
-
-const currentOrganizationId = computed(() => organizationStore.currentOrganizationId);
+// Local UI state
+const isInviteModalOpen = ref(false);
+const inviteLoading = ref(false);
+const inviteError = ref<string | null>(null);
 
 const loadOrganizationData = async () => {
-  if (!currentOrganizationId.value) return;
-  
-  state.value.loading = true;
-  state.value.error = null;
-  
-  try {
-    // Load organization info
-    const orgResponse = await organizationApi.getOrganizations();
-    const currentOrg = orgResponse.data.find(org => org.id === currentOrganizationId.value);
-    state.value.organization = currentOrg || null;
-    
-    // Load members
-    await loadMembers();
-    
-    // Load invitations
-    await loadInvitations();
-  } catch (err: any) {
-    state.value.error = err.message || 'Failed to load organization data';
-  } finally {
-    state.value.loading = false;
-  }
+  await settingsStore.fetchOrganization();
+  await settingsStore.fetchMembers();
+  await settingsStore.fetchInvitations();
 };
 
-const loadMembers = async () => {
-  if (!currentOrganizationId.value) return;
-  
-  try {
-    const response = await organizationApi.getOrganizationMembers(
-      currentOrganizationId.value,
-      state.value.currentMembersPage,
-      state.value.pageSize
-    );
-    state.value.members = response.data;
-    state.value.membersPagination = response.pagination;
-  } catch (err: any) {
-    state.value.error = err.message || 'Failed to load members';
-  }
-};
-
-const loadInvitations = async () => {
-  if (!currentOrganizationId.value) return;
-  
-  try {
-    // Note: This would need to be implemented in the backend
-    // For now, we'll set empty data
-    state.value.invitations = [];
-    state.value.invitationsPagination = { page: 1, pageSize: 10, total: 0 };
-  } catch (err: any) {
-    state.value.error = err.message || 'Failed to load invitations';
-  }
-};
+const loadMembers = async () => settingsStore.fetchMembers();
+const loadInvitations = async () => settingsStore.fetchInvitations();
 
 const handleUpdateOrganization = async (data: UpdateOrganizationRequestDto) => {
-  if (!currentOrganizationId.value) return;
-  
   try {
-    const updatedOrg = await organizationApi.updateOrganization(currentOrganizationId.value, data);
-    state.value.organization = updatedOrg;
+    await settingsStore.updateOrganization(data);
   } catch (err: any) {
-    state.value.error = err.message || 'Failed to update organization';
+    inviteError.value = err.message || 'Failed to update organization';
   }
 };
 
 const handleRemoveMember = async (userId: string) => {
-  if (!currentOrganizationId.value) return;
-  
   try {
-    await organizationApi.removeOrganizationMember(currentOrganizationId.value, userId);
-    await loadMembers(); // Refresh members list
+    await settingsStore.removeMember(userId);
   } catch (err: any) {
-    state.value.error = err.message || 'Failed to remove member';
+    inviteError.value = err.message || 'Failed to remove member';
   }
 };
 
 const handleCancelInvitation = async (invitationId: string) => {
-  if (!currentOrganizationId.value) return;
-  
   try {
-    await organizationApi.cancelInvitation(currentOrganizationId.value, invitationId);
-    await loadInvitations(); // Refresh invitations list
+    await settingsStore.cancelInvitation(invitationId);
   } catch (err: any) {
-    state.value.error = err.message || 'Failed to cancel invitation';
+    inviteError.value = err.message || 'Failed to cancel invitation';
   }
 };
 
 const handleInviteUser = () => {
-  state.value.isInviteModalOpen = true;
-  state.value.inviteError = null;
+  isInviteModalOpen.value = true;
+  inviteError.value = null;
 };
 
 const handleCloseInviteModal = () => {
-  state.value.isInviteModalOpen = false;
-  state.value.inviteError = null;
+  isInviteModalOpen.value = false;
+  inviteError.value = null;
 };
 
 const handleSubmitInvitation = async (data: CreateInvitationRequestDto) => {
-  if (!currentOrganizationId.value) return;
-  
-  state.value.inviteLoading = true;
-  state.value.inviteError = null;
-  
+  inviteLoading.value = true;
+  inviteError.value = null;
   try {
-    await organizationApi.createInvitation(currentOrganizationId.value, data);
-    state.value.isInviteModalOpen = false;
-    await loadInvitations(); // Refresh invitations list
+    await settingsStore.createInvitation(data);
+    isInviteModalOpen.value = false;
   } catch (err: any) {
-    state.value.inviteError = err.message || 'Failed to create invitation';
+    inviteError.value = err.message || 'Failed to create invitation';
   } finally {
-    state.value.inviteLoading = false;
+    inviteLoading.value = false;
   }
 };
 
 const handleMembersPageChange = (page: number) => {
-  state.value.currentMembersPage = page;
-  loadMembers();
+  settingsStore.setMembersPage(page);
+  settingsStore.fetchMembers(page);
 };
 
 const handleInvitationsPageChange = (page: number) => {
-  state.value.currentInvitationsPage = page;
-  loadInvitations();
+  settingsStore.setInvitationsPage(page);
+  settingsStore.fetchInvitations(page);
 };
 
 onMounted(() => {

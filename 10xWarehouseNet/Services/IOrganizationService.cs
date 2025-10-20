@@ -14,6 +14,7 @@ public interface IOrganizationService
     Task RemoveOrganizationMemberAsync(Guid organizationId, Guid targetUserId, string userId);
     Task CancelInvitationAsync(Guid organizationId, Guid invitationId, string userId);
     Task<IEnumerable<UserInvitationDto>> GetUserInvitationsAsync(string userId);
+    Task<(IEnumerable<InvitationDto> invitations, int totalCount)> GetOrganizationInvitationsAsync(Guid organizationId, string userId, int page, int pageSize);
     Task AcceptInvitationAsync(Guid invitationId, string userId);
     Task DeclineInvitationAsync(Guid invitationId, string userId);
 }

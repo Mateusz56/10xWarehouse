@@ -322,11 +322,14 @@ export interface OrganizationMemberDto {
   email: string;
   role: 'Owner' | 'Member' | 'Viewer';
   status: 'Accepted' | 'Pending';
+  userDisplayName?: string;
 }
 
 export interface InvitationDto {
   id: string;
   invitedUserId: string;
+  invitedUserEmail?: string;
+  invitedUserDisplayName?: string;
   role: 'Owner' | 'Member' | 'Viewer';
   status: 'Pending' | 'Accepted' | 'Declined';
 }

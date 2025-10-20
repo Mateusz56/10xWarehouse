@@ -58,8 +58,8 @@
       </div>
 
       <!-- Members List -->
-      <div v-else class="space-y-4">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-else class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <MemberCard
             v-for="member in members"
             :key="member.userId || member.email"
@@ -71,13 +71,15 @@
         </div>
 
         <!-- Pagination -->
-        <PaginationControl
-          v-if="pagination.total > pagination.pageSize"
-          :current-page="pagination.page"
-          :page-size="pagination.pageSize"
-          :total="pagination.total"
-          @page-change="$emit('page-change', $event)"
-        />
+        <div class="px-6 py-4 border-t border-border">
+          <PaginationControl
+            v-if="pagination.total > pagination.pageSize"
+            :current-page="pagination.page"
+            :page-size="pagination.pageSize"
+            :total="pagination.total"
+            @page-change="$emit('page-change', $event)"
+          />
+        </div>
       </div>
     </div>
   </div>

@@ -3,6 +3,7 @@ using _10xWarehouseNet.Db.Enums;
 using _10xWarehouseNet.Db.Models;
 using _10xWarehouseNet.Dtos.OrganizationDtos;
 using _10xWarehouseNet.Exceptions;
+using _10xWarehouseNet.Clients;
 using Microsoft.EntityFrameworkCore;
 
 namespace _10xWarehouseNet.Services;
@@ -10,11 +11,13 @@ namespace _10xWarehouseNet.Services;
 public class OrganizationService : IOrganizationService
 {
     private readonly WarehouseDbContext _context;
+    private readonly SupabaseUsers _supabaseUsers;
     private readonly ILogger<OrganizationService> _logger;
 
-    public OrganizationService(WarehouseDbContext context, ILogger<OrganizationService> logger)
+    public OrganizationService(WarehouseDbContext context, SupabaseUsers supabaseUsers, ILogger<OrganizationService> logger)
     {
         _context = context;
+        _supabaseUsers = supabaseUsers;
         _logger = logger;
     }
 
@@ -256,15 +259,77 @@ public class OrganizationService : IOrganizationService
             // Get members and invitations
             var members = await _context.OrganizationMembers
                 .Where(om => om.OrganizationId == organizationId)
-                .Select(om => new OrganizationMemberDto(om.UserId, "", om.Role, InvitationStatus.Accepted))
                 .ToListAsync();
 
             var invitations = await _context.Invitations
                 .Where(i => i.OrganizationId == organizationId && i.Status == InvitationStatus.Pending)
-                .Select(i => new OrganizationMemberDto(i.InvitedUserId, "", i.Role, InvitationStatus.Pending))
                 .ToListAsync();
 
-            var allMembers = members.Concat(invitations).ToList();
+            // Fetch user information for members
+            var membersWithUsers = new List<OrganizationMemberDto>();
+            foreach (var member in members)
+            {
+                try
+                {
+                    var userInfo = await _supabaseUsers.GetUserByIdAsync(member.UserId.ToString());
+                    object? displayNameObj = null;
+                    userInfo?.UserMetadata.TryGetValue("display_name", out displayNameObj);
+                    membersWithUsers.Add(new OrganizationMemberDto(
+                        member.UserId, 
+                        userInfo?.Email ?? "Unknown", 
+                        member.Role, 
+                        InvitationStatus.Accepted)
+                    {
+                        UserDisplayName = displayNameObj is not null ? (string)displayNameObj : "Unknown User"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch user info for member {UserId}", member.UserId);
+                    membersWithUsers.Add(new OrganizationMemberDto(
+                        member.UserId, 
+                        "Unknown", 
+                        member.Role, 
+                        InvitationStatus.Accepted)
+                    {
+                        UserDisplayName = "Unknown User"
+                    });
+                }
+            }
+
+            // Fetch user information for pending invitations
+            var invitationsWithUsers = new List<OrganizationMemberDto>();
+            foreach (var invitation in invitations)
+            {
+                try
+                {
+                    var userInfo = await _supabaseUsers.GetUserByIdAsync(invitation.InvitedUserId.ToString());
+                    object? displayNameObj = null;
+                    userInfo?.UserMetadata.TryGetValue("display_name", out displayNameObj);
+                    invitationsWithUsers.Add(new OrganizationMemberDto(
+                        invitation.InvitedUserId, 
+                        userInfo?.Email ?? "Unknown", 
+                        invitation.Role, 
+                        InvitationStatus.Pending)
+                    {
+                        UserDisplayName = displayNameObj is not null ? (string)displayNameObj : "Unknown User"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch user info for invitation {InvitedUserId}", invitation.InvitedUserId);
+                    invitationsWithUsers.Add(new OrganizationMemberDto(
+                        invitation.InvitedUserId, 
+                        "Unknown", 
+                        invitation.Role, 
+                        InvitationStatus.Pending)
+                    {
+                        UserDisplayName = "Unknown User"
+                    });
+                }
+            }
+
+            var allMembers = membersWithUsers.Concat(invitationsWithUsers).ToList();
             var totalCount = allMembers.Count;
 
             var paginatedMembers = allMembers
@@ -527,6 +592,108 @@ public class OrganizationService : IOrganizationService
         {
             _logger.LogError(ex, "An unexpected error occurred while retrieving invitations for user {UserId}", userId);
             throw new DatabaseOperationException("An unexpected error occurred while retrieving invitations.", ex);
+        }
+    }
+
+    public async Task<(IEnumerable<InvitationDto> invitations, int totalCount)> GetOrganizationInvitationsAsync(Guid organizationId, string userId, int page, int pageSize)
+    {
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new InvalidUserIdException("User ID cannot be null or empty.", nameof(userId));
+        }
+
+        if (page < 1)
+        {
+            throw new InvalidPaginationException("Page must be greater than 0.", nameof(page));
+        }
+
+        if (pageSize < 1 || pageSize > 100)
+        {
+            throw new InvalidPaginationException("Page size must be between 1 and 100.", nameof(pageSize));
+        }
+
+        try
+        {
+            var userGuid = Guid.Parse(userId);
+
+            // Check organization and membership
+            var organization = await _context.Organizations
+                .Include(o => o.Members)
+                .FirstOrDefaultAsync(o => o.Id == organizationId);
+
+            if (organization == null)
+            {
+                throw new OrganizationNotFoundException($"Organization with ID {organizationId} not found.");
+            }
+
+            var userMembership = organization.Members.FirstOrDefault(m => m.UserId == userGuid);
+            if (userMembership == null)
+            {
+                throw new UnauthorizedAccessException("User is not authorized to view this organization's invitations.");
+            }
+
+            var query = _context.Invitations
+                .Where(i => i.OrganizationId == organizationId)
+                .OrderByDescending(i => i.Id);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Fetch user information for each invitation
+            var invitationsWithUsers = new List<InvitationDto>();
+            foreach (var invitation in items)
+            {
+                try
+                {
+                    var userInfo = await _supabaseUsers.GetUserByIdAsync(invitation.InvitedUserId.ToString());
+                    object? displayNameObj = null;
+                    userInfo?.UserMetadata.TryGetValue("display_name", out displayNameObj);
+                    invitationsWithUsers.Add(new InvitationDto(
+                        invitation.Id,
+                        invitation.InvitedUserId,
+                        invitation.Role,
+                        invitation.Status)
+                    {
+                        InvitedUserEmail = userInfo?.Email ?? "Unknown",
+                        InvitedUserDisplayName = displayNameObj is not null ? (string)displayNameObj : "Unknown User"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to fetch user info for user {UserId}", invitation.InvitedUserId);
+                    // Add invitation without user info
+                    invitationsWithUsers.Add(new InvitationDto(
+                        invitation.Id, 
+                        invitation.InvitedUserId, 
+                        invitation.Role, 
+                        invitation.Status)
+                    {
+                        InvitedUserEmail = "Unknown",
+                        InvitedUserDisplayName = "Unknown User"
+                    });
+                }
+            }
+
+            return (invitationsWithUsers, totalCount);
+        }
+        catch (FormatException ex)
+        {
+            _logger.LogError(ex, "Invalid user ID format: {UserId}", userId);
+            throw new InvalidUserIdException("Invalid user ID format.", nameof(userId), ex);
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Database error while retrieving organization invitations for organization {OrganizationId}", organizationId);
+            throw new DatabaseOperationException("Database operation failed while retrieving organization invitations.", ex);
+        }
+        catch (Exception ex) when (!(ex is InvalidUserIdException || ex is OrganizationNotFoundException || ex is UnauthorizedAccessException || ex is InvalidPaginationException))
+        {
+            _logger.LogError(ex, "An unexpected error occurred while retrieving organization invitations for organization {OrganizationId}", organizationId);
+            throw new DatabaseOperationException("An unexpected error occurred while retrieving organization invitations.", ex);
         }
     }
 

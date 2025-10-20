@@ -355,6 +355,12 @@ export const organizationApi = {
     });
   },
 
+  async getOrganizationInvitations(orgId: string, page: number = 1, pageSize: number = 10): Promise<PaginatedResponseDto<InvitationDto>> {
+    return fetchWrapper<PaginatedResponseDto<InvitationDto>>(
+      `${API_BASE_URL}/organizations/${orgId}/invitations?page=${page}&pageSize=${pageSize}`
+    );
+  },
+
   async searchUsers(query: string, limit: number = 10): Promise<UserSearchResult[]> {
     return fetchWrapper<UserSearchResult[]>(`${API_BASE_URL}/users/search?query=${encodeURIComponent(query)}&limit=${limit}`);
   }

@@ -6,9 +6,18 @@ using System.ComponentModel.DataAnnotations;
 
 public record OrganizationDto(Guid Id, string Name);
 
-public record OrganizationMemberDto(Guid? UserId, string Email, UserRole Role, InvitationStatus Status);
+public record OrganizationMemberDto(Guid? UserId, string Email, UserRole Role, InvitationStatus Status)
+{
+    public string? UserDisplayName { get; init; }
+}
 
-public record InvitationDto(Guid Id, Guid InvitedUserId, UserRole Role, InvitationStatus Status);
+public record InvitationDto(Guid Id, Guid InvitedUserId, UserRole Role, InvitationStatus Status)
+{
+    public string? InvitedUserEmail { get; init; }
+    public string? InvitedUserDisplayName { get; init; }
+}
+
+public record InvitationWithUserDto(Guid Id, Guid InvitedUserId, string InvitedUserEmail, string InvitedUserDisplayName, UserRole Role, InvitationStatus Status);
 
 public record UserDto
 {

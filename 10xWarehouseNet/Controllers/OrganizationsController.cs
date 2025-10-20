@@ -288,5 +288,43 @@ namespace _10xWarehouseNet.Controllers
                 return StatusCode(500, "An unexpected error occurred.");
             }
         }
+
+        [HttpGet("{orgId}/invitations")]
+        public async Task<IActionResult> GetOrganizationInvitations(Guid orgId, [FromQuery] PaginationRequestDto pagination)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            try
+            {
+                var (invitations, totalCount) = await _organizationService.GetOrganizationInvitationsAsync(orgId, userId, pagination.Page, pagination.PageSize);
+                var paginationDto = new PaginationDto(pagination.Page, pagination.PageSize, totalCount);
+                var response = new PaginatedResponseDto<InvitationDto>(invitations, paginationDto);
+                return Ok(response);
+            }
+            catch (OrganizationNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Organization {OrganizationId} not found for user {UserId}", orgId, userId);
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "User {UserId} not authorized to view invitations for organization {OrganizationId}", userId, orgId);
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get invitations for organization {OrganizationId} for user {UserId}", orgId, userId);
+                return StatusCode(500, "An unexpected error occurred.");
+            }
+        }
     }
 }
