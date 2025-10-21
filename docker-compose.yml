@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      app-net:
+        aliases:
+          - db
+
+  backend:
+    build:
+      context: .
+      dockerfile: 10xWarehouseNet/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=postgres;Username=postgres;Password=postgres
+      Supabase__Url: ${SUPABASE_URL:-}
+      Supabase__ServiceRoleKey: ${SUPABASE_SERVICE_ROLE_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "7150:8080"
+    networks:
+      app-net:
+        aliases:
+          - api
+
+  frontend:
+    build:
+      context: .
+      dockerfile: 10xWarehouseAstro/astro-app/Dockerfile
+      args:
+        PUBLIC_API_BASE_URL: http://localhost:7150/api
+    depends_on:
+      - backend
+    ports:
+      - "4322:4321"
+    networks:
+      app-net:
+        aliases:
+          - web
+
+volumes:
+  pgdata:
+
+networks:
+  app-net:
+    driver: bridge
+
+
