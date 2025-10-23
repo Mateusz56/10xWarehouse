@@ -9,7 +9,7 @@ FROM deps AS build
 COPY 10xWarehouseAstro/astro-app/ .
 ARG PUBLIC_API_BASE_URL
 ENV PUBLIC_API_BASE_URL=$PUBLIC_API_BASE_URL
-RUN npm run build
+RUN chmod +x node_modules/.bin/* && npm run build
 
 FROM base AS runner
 ENV NODE_ENV=production
