@@ -144,18 +144,16 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "10xWarehouse API v1");
-        // Keep default Swagger UI path: /swagger/index.html
-        c.DocumentTitle = "10xWarehouse API Documentation";
-        c.DefaultModelsExpandDepth(-1); // Hide models section by default
-        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List); // Expand only the list of operations
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "10xWarehouse API v1");
+    // Keep default Swagger UI path: /swagger/index.html
+    c.DocumentTitle = "10xWarehouse API Documentation";
+    c.DefaultModelsExpandDepth(-1); // Hide models section by default
+    c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List); // Expand only the list of operations
+});
 
 // Only redirect to HTTPS in production, not in containers
 if (!app.Environment.IsDevelopment())
