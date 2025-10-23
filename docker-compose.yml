@@ -29,6 +29,8 @@ services:
         condition: service_healthy
     expose:
       - "8080"
+    ports:
+      - "8080:8080"  # Temporary: Direct backend access
 
   frontend:
     build:
