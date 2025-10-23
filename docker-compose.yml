@@ -27,22 +27,34 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
   frontend:
     build:
       context: .
       dockerfile: 10xWarehouseAstro/astro-app/Dockerfile
       args:
-        PUBLIC_API_BASE_URL: http://backend:8080/api
+        PUBLIC_API_BASE_URL: /api
     environment:
       PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
-      PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     depends_on:
       - backend
+    expose:
+      - "4321"
+
+  nginx:
+    image: nginx:alpine
     ports:
-      - "4321:4321"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
 
 volumes:
   pgdata:

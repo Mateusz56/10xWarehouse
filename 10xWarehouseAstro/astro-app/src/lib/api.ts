@@ -29,7 +29,7 @@ import type {
 } from "@/types/dto";
 import { useAuthStore } from '@/stores/auth';
 
-const API_BASE_URL = import.meta.env.PUBLIC_API_BASE_URL || 'http://localhost:7146/api';
+const API_BASE_URL = '/api';
 
 async function fetchWrapper<T>(url: string, options: RequestInit = {}): Promise<T> {
   const authStore = useAuthStore();
