@@ -36,6 +36,9 @@ services:
       dockerfile: 10xWarehouseAstro/astro-app/Dockerfile
       args:
         PUBLIC_API_BASE_URL: http://localhost:8080/api
+    environment:
+      PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+      PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
     depends_on:
       - backend
     ports:
@@ -43,4 +46,3 @@ services:
 
 volumes:
   pgdata:
-  
