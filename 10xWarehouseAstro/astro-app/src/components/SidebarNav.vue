@@ -83,7 +83,7 @@ async function handleLogout() {
       </div>
     </div>
 
-    <nav class="flex-grow px-3 py-4 overflow-y-auto">
+    <nav class="flex-grow px-3 py-4 overflow-y-auto" data-allow-mismatch>
       <ul class="space-y-2 font-medium">
         <NavItem
           v-for="item in navItems"

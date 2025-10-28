@@ -21,10 +21,10 @@ onMounted(async () => {
   <div v-if="isInitializing" class="flex items-center justify-center min-h-screen">
     <div class="text-lg">Loading...</div>
   </div>
-  <div v-else-if="authStore.isAuthenticated" class="flex min-h-screen">
+  <div v-else-if="authStore.isAuthenticated" class="flex min-h-screen" data-allow-mismatch>
     <SidebarNav />
     <main class="flex-1 overflow-auto">
-      <slot></slot>
+      <router-view />
     </main>
     <CreateOrganizationModal />
   </div>

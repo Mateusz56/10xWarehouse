@@ -1,6 +1,10 @@
-import { createApp } from 'vue'
+import type { App } from 'vue'
 import { pinia } from '@/stores'
+import { clientRouter } from './_clientRouter'
 
-export default (app: any) => {
+export default (app: App) => {
   app.use(pinia)
+  if (clientRouter) {
+    app.use(clientRouter)
+  }
 }
