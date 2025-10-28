@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui';
 import { useWarehouseDetailsStore } from '@/stores/warehouseDetails';
+import { useRouter } from 'vue-router';
 import type { WarehouseWithLocationsDto } from '@/types/dto';
 import { Button } from '@/components/ui/button';
 
@@ -8,6 +9,7 @@ const props = defineProps<{
   warehouse: WarehouseWithLocationsDto;
 }>();
 
+const router = useRouter();
 const uiStore = useUiStore();
 const warehouseDetailsStore = useWarehouseDetailsStore();
 
@@ -20,7 +22,7 @@ function handleDeleteWarehouse() {
 }
 
 function handleBackToWarehouses() {
-  window.location.href = '/warehouses';
+  router.push('/warehouses');
 }
 </script>
 

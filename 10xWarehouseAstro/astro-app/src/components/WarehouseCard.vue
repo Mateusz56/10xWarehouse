@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui';
 import { useWarehouseStore } from '@/stores/warehouse';
+import { useRouter } from 'vue-router';
 import type { WarehouseVM } from '@/types/dto';
 import { Button } from '@/components/ui/button';
 
@@ -8,11 +9,12 @@ const props = defineProps<{
   warehouse: WarehouseVM;
 }>();
 
+const router = useRouter();
 const uiStore = useUiStore();
 const warehouseStore = useWarehouseStore();
 
 function handleCardClick() {
-  window.location.href = `/warehouses/${props.warehouse.id}`;
+  router.push(`/warehouses/${props.warehouse.id}`);
 }
 
 function handleEditClick(event: Event) {

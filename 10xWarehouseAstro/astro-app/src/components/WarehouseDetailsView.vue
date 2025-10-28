@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useWarehouseDetailsStore } from '@/stores/warehouseDetails';
 import { useOrganizationStore } from '@/stores/organization';
 import WarehouseDetailsHeader from './WarehouseDetailsHeader.vue';
@@ -9,14 +10,13 @@ import EditLocationModal from './EditLocationModal.vue';
 import EditWarehouseModal from './EditWarehouseModal.vue';
 import DeleteConfirmationModal from './DeleteConfirmationModal.vue';
 
-interface Props {
-  warehouseId: string;
-}
-
-const props = defineProps<Props>();
-
+const route = useRoute();
+const router = useRouter();
 const warehouseDetailsStore = useWarehouseDetailsStore();
 const organizationStore = useOrganizationStore();
+
+// Get warehouse ID from route params
+const warehouseId = computed(() => route.params.id as string);
 
 const isLoading = computed(() => {
   return warehouseDetailsStore.loading;
@@ -39,7 +39,7 @@ const pagination = computed(() => {
 });
 
 // Watch for warehouse ID changes and fetch data
-watch(() => props.warehouseId, async (newId) => {
+watch(() => warehouseId.value, async (newId) => {
   if (newId) {
     await loadWarehouseData(newId);
   }
@@ -47,8 +47,8 @@ watch(() => props.warehouseId, async (newId) => {
 
 // Watch for organization changes and reload data
 watch(() => organizationStore.currentOrganizationId, async (newOrgId) => {
-  if (newOrgId && props.warehouseId) {
-    await loadWarehouseData(props.warehouseId);
+  if (newOrgId && warehouseId.value) {
+    await loadWarehouseData(warehouseId.value);
   }
 });
 
@@ -71,8 +71,8 @@ async function loadWarehouseData(id: string | null) {
 }
 
 onMounted(async () => {
-  if (props.warehouseId) {
-    await loadWarehouseData(props.warehouseId);
+  if (warehouseId.value) {
+    await loadWarehouseData(warehouseId.value);
   }
 });
 
@@ -92,9 +92,7 @@ const isUnauthorized = computed(() => {
 
 // Navigation function
 function navigateToWarehouses() {
-  if (typeof window !== 'undefined') {
-    window.location.href = '/warehouses';
-  }
+  router.push('/warehouses');
 }
 </script>
 

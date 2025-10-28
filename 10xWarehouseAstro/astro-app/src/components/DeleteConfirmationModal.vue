@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUiStore } from '@/stores/ui';
 import { useWarehouseDetailsStore } from '@/stores/warehouseDetails';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+const router = useRouter();
 const uiStore = useUiStore();
 const warehouseDetailsStore = useWarehouseDetailsStore();
 
@@ -104,7 +106,7 @@ async function handleConfirm() {
       if (uiStore.selectedWarehouseDetails) {
         await warehouseDetailsStore.deleteWarehouse(selectedItem.value.id);
         // Redirect to warehouses list after successful deletion
-        window.location.href = '/warehouses';
+        router.push('/warehouses');
       } else {
         // Import warehouseStore for this case
         const { useWarehouseStore } = await import('@/stores/warehouse');
