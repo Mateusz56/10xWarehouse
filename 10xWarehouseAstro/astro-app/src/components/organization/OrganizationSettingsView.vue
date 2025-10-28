@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useOrganizationStore } from '@/stores/organization';
 import { useOrganizationSettingsStore } from '@/stores/organizationSettings';
 import type { CreateInvitationRequestDto, UpdateOrganizationRequestDto } from '@/types/dto';
@@ -186,5 +186,12 @@ const handleInvitationsPageChange = (page: number) => {
 
 onMounted(() => {
   loadOrganizationData();
+});
+
+// Watch for organization changes
+watch(() => organizationStore.currentOrganizationId, async (newOrgId) => {
+  if (newOrgId) {
+    await loadOrganizationData();
+  }
 });
 </script>

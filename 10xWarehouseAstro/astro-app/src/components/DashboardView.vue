@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useInventoryStore } from '@/stores/inventory';
 import { useOrganizationStore } from '@/stores/organization';
 import { useStockMovementStore } from '@/stores/stockMovement';
@@ -43,6 +43,18 @@ function getProductById(id: string) {
 // Load data when component mounts
 onMounted(() => {
   loadData();
+});
+
+// Watch for organization changes
+watch(() => organizationStore.currentOrganizationId, async (newOrgId) => {
+  if (newOrgId) {
+    inventoryStore.clearInventory();
+    stockMovementStore.clearMovements();
+    await loadData();
+  } else {
+    inventoryStore.clearInventory();
+    stockMovementStore.clearMovements();
+  }
 });
 </script>
 
