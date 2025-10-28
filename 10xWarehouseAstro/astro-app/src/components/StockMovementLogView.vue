@@ -211,8 +211,9 @@ async function loadData() {
     return;
   }
   
+  // Ensure default page size is 50
   await Promise.all([
-    stockMovementStore.fetchMovements(),
+    stockMovementStore.fetchMovements(1, 50),
     inventoryStore.fetchProducts(),
     inventoryStore.fetchLocations()
   ]);

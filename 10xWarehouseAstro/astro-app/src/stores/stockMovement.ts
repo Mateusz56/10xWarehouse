@@ -21,7 +21,7 @@ export const useStockMovementStore = defineStore('stockMovement', () => {
     total: 0
   });
   const currentPage = ref(1);
-  const pageSize = ref(50);
+  const pageSize = ref(50); // Default page size is 50
 
   // Computed
   const hasMovements = computed(() => movements.value.length > 0);

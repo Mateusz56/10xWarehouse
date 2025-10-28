@@ -113,7 +113,28 @@ async function handleLogout() {
       </div>
     </nav>
     
-    <div class="p-4 mt-auto">
+    <div class="p-4 mt-auto border-t border-border/20">
+      <!-- User Display -->
+      <div v-if="organizationStore.user" class="mb-4 pb-4 border-b border-border/20">
+        <div class="flex items-center space-x-3">
+          <div class="flex-shrink-0">
+            <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-sidebar-foreground truncate">
+              {{ organizationStore.user.displayName }}
+            </p>
+            <p class="text-xs text-sidebar-foreground/70 truncate">
+              {{ organizationStore.user.email }}
+            </p>
+          </div>
+        </div>
+      </div>
+      
       <Button 
         v-if="authStore.isAuthenticated"
         @click="handleLogout" 
