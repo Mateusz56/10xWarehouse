@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import SidebarNav from './SidebarNav.vue';
 import CreateOrganizationModal from './CreateOrganizationModal.vue';
 
 const authStore = useAuthStore();
+const router = useRouter();
 const isInitializing = ref(true);
 
 onMounted(async () => {
@@ -13,7 +15,29 @@ onMounted(async () => {
     await authStore.initializeAuth();
   }
   
+  // Redirect to login if not authenticated (only for protected routes)
+  const currentPath = window.location.pathname;
+  const publicRoutes = ['/login', '/register'];
+  if (!authStore.isAuthenticated && !publicRoutes.includes(currentPath)) {
+    window.location.href = '/login';
+    return;
+  }
+  
   isInitializing.value = false;
+});
+
+// Watch for auth state changes and redirect if logged out
+watch(() => authStore.isAuthenticated, (isAuthenticated) => {
+  if (!isInitializing.value) {
+    const currentPath = window.location.pathname;
+    const publicRoutes = ['/login', '/register'];
+    
+    if (!isAuthenticated && !publicRoutes.includes(currentPath)) {
+      window.location.href = '/login';
+    } else if (isAuthenticated && publicRoutes.includes(currentPath)) {
+      router.push('/');
+    }
+  }
 });
 </script>
 

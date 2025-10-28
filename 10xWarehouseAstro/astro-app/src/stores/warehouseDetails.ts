@@ -34,19 +34,19 @@ export const useWarehouseDetailsStore = defineStore('warehouseDetails', () => {
   const isEmpty = computed(() => !loading.value && locations.value.length === 0);
   const canCreateLocation = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canEditLocation = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canDeleteLocation = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canEditWarehouse = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canDeleteWarehouse = computed(() => {
     const role = organizationStore.currentRole;

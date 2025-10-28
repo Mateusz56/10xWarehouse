@@ -30,11 +30,11 @@ export const useWarehouseStore = defineStore('warehouse', () => {
   const isEmpty = computed(() => !loading.value && warehouses.value.length === 0);
   const canCreateWarehouse = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canEditWarehouse = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canDeleteWarehouse = computed(() => {
     const role = organizationStore.currentRole;

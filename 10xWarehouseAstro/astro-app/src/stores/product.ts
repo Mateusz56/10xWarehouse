@@ -30,15 +30,15 @@ export const useProductStore = defineStore('product', () => {
   const isEmpty = computed(() => !loading.value && products.value.length === 0);
   const canCreateProduct = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canEditProduct = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
   const canDeleteProduct = computed(() => {
     const role = organizationStore.currentRole;
-    return role === 'Owner' || role === 'Member';
+    return role === 'Owner';
   });
 
   // Actions
