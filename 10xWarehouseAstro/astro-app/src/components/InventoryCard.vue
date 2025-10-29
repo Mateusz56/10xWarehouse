@@ -57,8 +57,8 @@ const emit = defineEmits<{
 }>();
 
 const isLowStock = computed(() => {
-  // Assuming low stock threshold is 10 for now - this should come from product data
-  return props.inventory.quantity <= 10;
+  // Use the isLowStock flag from the backend
+  return props.inventory.isLowStock;
 });
 
 const quantityClass = computed(() => {

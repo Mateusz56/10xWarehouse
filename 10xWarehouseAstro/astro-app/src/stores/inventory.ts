@@ -52,14 +52,14 @@ export const useInventoryStore = defineStore('inventory', () => {
     }
     
     if (filters.value.lowStock) {
-      // Assuming low stock threshold is 10 for now - this should come from product data
-      filtered = filtered.filter(item => item.quantity <= 10);
+      // Use the isLowStock flag from the backend
+      filtered = filtered.filter(item => item.isLowStock);
     }
     
     return filtered;
   });
   const lowStockItems = computed(() => {
-    return inventory.value.filter(item => item.quantity <= 10);
+    return inventory.value.filter(item => item.isLowStock);
   });
 
   // Actions

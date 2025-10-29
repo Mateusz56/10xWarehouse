@@ -10,7 +10,7 @@ public record ProductSummaryDto(Guid Id, string Name);
 
 public record LocationSummaryDto(Guid Id, string Name);
 
-public record InventorySummaryDto(ProductSummaryDto Product, LocationSummaryDto Location, int Quantity);
+public record InventorySummaryDto(ProductSummaryDto Product, LocationSummaryDto Location, int Quantity, bool IsLowStock);
 
 public record StockMovementDto(
     Guid Id,

@@ -14,7 +14,7 @@ const stockMovementStore = useStockMovementStore();
 const loading = computed(() => inventoryStore.loading || stockMovementStore.loading);
 const error = computed(() => inventoryStore.error || stockMovementStore.error);
 const recentMovements = computed(() => stockMovementStore.movements.slice(0, 5));
-const lowStockItems = computed(() => inventoryStore.inventory.filter(item => item.quantity <= 10));
+const lowStockItems = computed(() => inventoryStore.inventory.filter(item => item.isLowStock));
 
 async function loadData() {
   if (!organizationStore.currentOrganizationId) {

@@ -207,6 +207,7 @@ export interface InventorySummaryDto {
   product: ProductSummaryDto;
   location: LocationSummaryDto;
   quantity: number;
+  isLowStock: boolean;
 }
 
 // Stock Movement View Models
