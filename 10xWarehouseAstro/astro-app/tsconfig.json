@@ -2,6 +2,7 @@
   "extends": "astro/tsconfigs/strict",
   "include": [
     ".astro/types.d.ts",
+    "src/vitest-setup.d.ts",
     "**/*"
   ],
   "exclude": [
