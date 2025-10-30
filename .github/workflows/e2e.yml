@@ -10,8 +10,7 @@ jobs:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-    services:
-
+      PLAYWRIGHT_BACKEND_URL: http://localhost:8080/api
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +34,7 @@ jobs:
         run: |
           for i in {1..40}; do
             curl -fsS http://localhost:8080/ || true
-            if curl -fsS http://localhost:8080/organizations || curl -fsS http://localhost:8080/; then
+            if curl -fsS http://localhost:8080/api/organizations || curl -fsS http://localhost:8080/; then
               echo "Backend is up"; break
             fi
             sleep 3
