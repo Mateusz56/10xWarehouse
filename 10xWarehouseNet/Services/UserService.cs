@@ -53,14 +53,9 @@ public class UserService : IUserService
                 }
             };
 
-            // Create organization if requested
-            if (request.CreateOrganization)
+            // Create organization only if requested AND a non-empty name is provided
+            if (request.CreateOrganization && !string.IsNullOrWhiteSpace(request.OrganizationName))
             {
-                if (string.IsNullOrWhiteSpace(request.OrganizationName))
-                {
-                    throw new ArgumentException("Organization name is required when creating an organization.");
-                }
-
                 var organization = await _organizationService.CreateOrganizationAsync(
                     new CreateOrganizationRequestDto { Name = request.OrganizationName }, 
                     supabaseUser.Id.ToString());

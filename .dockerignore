@@ -1,0 +1,42 @@
+# Global ignores for build context
+.git
+.gitignore
+**/.git
+
+# IDE and editor caches
+**/.vs
+**/.vscode
+**/.idea
+
+# Dotnet build outputs
+**/bin
+**/obj
+
+# Node and frontend caches
+**/node_modules
+**/.astro
+**/.cache
+**/dist
+
+# Local environment files
+.env
+.env.*
+
+# Test and reports
+**/coverage*
+**/playwright-report
+**/test-results
+**/*.snap*
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Project-specific noisy paths
+10xWarehouseNet/.vs
+10xWarehouseNet/bin
+10xWarehouseNet/obj
+10xWarehouseAstro/astro-app/node_modules
+10xWarehouseAstro/astro-app/.astro
+10xWarehouseAstro/astro-app/playwright-report
+10xWarehouseAstro/astro-app/test-results

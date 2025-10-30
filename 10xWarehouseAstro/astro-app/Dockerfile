@@ -2,11 +2,15 @@ FROM node:20-alpine AS base
 WORKDIR /app
 
 FROM base AS deps
-COPY 10xWarehouseAstro/astro-app/package*.json ./
-RUN npm ci --no-audit --no-fund
+COPY package*.json ./
+RUN if [ -f package-lock.json ]; then \
+      npm ci --no-audit --no-fund || npm install --no-audit --no-fund; \
+    else \
+      npm install --no-audit --no-fund; \
+    fi
 
 FROM deps AS build
-COPY 10xWarehouseAstro/astro-app/ .
+COPY . .
 ARG API_BASE_URL
 ARG SUPABASE_URL
 ARG SUPABASE_ANON_KEY
@@ -24,7 +28,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/.env ./.env
-COPY 10xWarehouseAstro/astro-app/package*.json ./
+COPY package*.json ./
 EXPOSE 4321
 ENV HOST=0.0.0.0
 ENV PORT=4321

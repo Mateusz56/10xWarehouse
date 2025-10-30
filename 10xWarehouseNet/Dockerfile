@@ -7,11 +7,10 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY 10xWarehouseNet/10xWarehouseNet.csproj 10xWarehouseNet/
-RUN dotnet restore 10xWarehouseNet/10xWarehouseNet.csproj
-COPY 10xWarehouseNet/ 10xWarehouseNet/
-WORKDIR /src/10xWarehouseNet
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+COPY 10xWarehouseNet.csproj ./
+RUN dotnet restore 10xWarehouseNet.csproj
+COPY . .
+RUN dotnet publish 10xWarehouseNet.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

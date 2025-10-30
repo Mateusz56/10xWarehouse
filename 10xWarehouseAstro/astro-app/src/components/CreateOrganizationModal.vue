@@ -20,6 +20,15 @@ const handleModalUpdate = (open: boolean) => {
     uiStore.closeCreateOrganizationModal();
   }
 };
+
+async function handleCreateClick() {
+  // Run the form submit; it closes the modal on success
+  await form.value?.onSubmit?.();
+  // If modal was closed by a successful submit, refresh the page to reload org context
+  if (!uiStore.isCreateOrganizationModalOpen) {
+    window.location.reload();
+  }
+}
 </script>
 
 <template>
@@ -41,7 +50,7 @@ const handleModalUpdate = (open: boolean) => {
         <Button 
           type="submit" 
           :disabled="form?.isSubmitting"
-          @click="form?.onSubmit"
+          @click="handleCreateClick"
         >
           <span v-if="form?.isSubmitting">Creating...</span>
           <span v-else>Create</span>

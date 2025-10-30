@@ -50,6 +50,7 @@ function handlePageSizeChange(pageSize: number) {
       </div>
       
       <Button
+        id="CreateLocation"
         v-if="warehouseDetailsStore.canCreateLocation"
         @click="handleCreateLocation"
         :aria-label="'Create new location'"

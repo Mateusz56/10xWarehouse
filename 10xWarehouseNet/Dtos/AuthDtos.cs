@@ -19,7 +19,7 @@ public record RegisterRequestDto
 
     public bool CreateOrganization { get; set; } = false;
 
-    [StringLength(100, MinimumLength = 2)]
+    [StringLength(100)]
     public string? OrganizationName { get; set; }
 }
 

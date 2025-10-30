@@ -17,6 +17,7 @@ const warehouseStore = useWarehouseStore();
     </div>
     
     <Button 
+      id="CreateWarehouse"
       v-if="warehouseStore.canCreateWarehouse"
       @click="uiStore.openCreateWarehouseModal()"
       :disabled="warehouseStore.loading"
