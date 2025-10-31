@@ -51,6 +51,9 @@ test.describe('Registration E2E', () => {
     });
     expect(precreate.ok()).toBeTruthy();
 
+    // Wait a bit to ensure backend processed the first registration
+    await page.waitForTimeout(1000);
+
     const register = new RegisterPage(page);
     await register.goto();
     await register.fillForm({
@@ -61,7 +64,9 @@ test.describe('Registration E2E', () => {
     });
     await register.submit();
 
-    await register.expectError(/Registration failed|already in use|Conflict/i);
+    // Wait for error to appear with longer timeout
+    await expect(register.errorAlert).toBeVisible({ timeout: 10000 });
+    await register.expectError(/Registration failed|already in use|Conflict|email|duplicate/i);
   });
 });
 

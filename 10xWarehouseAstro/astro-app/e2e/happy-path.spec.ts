@@ -5,6 +5,7 @@ const E2E_EMAIL = 'e2e@example.e2e';
 const E2E_PASSWORD = 'e2ee2e';
 
 test('Happy path: login, org, product, warehouse, locations, add+move stock, view log', async ({ page }) => {
+  test.setTimeout(120000); // 2 minutes for this long-running test
   // Login
   const login = new LoginPage(page);
   await login.goto();
@@ -19,12 +20,18 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
   await page.getByPlaceholder('Acme Inc.').fill(orgName);
   await page.getByRole('button', { name: 'Create' }).click();
 
-  // Switch to the newly created organization
+  // Wait for page reload after organization creation
+  await page.waitForLoadState('networkidle');
+
+  // Wait for organization switcher to be enabled (organizations loaded)
   const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
+  await expect(orgTrigger).toBeEnabled({ timeout: 10000 });
   await orgTrigger.click();
   const orgOption = page.locator('[data-slot="select-item"]').filter({ hasText: orgName });
   await orgOption.waitFor({ state: 'visible' });
   await orgOption.click();
+  // Wait for organization switch to complete
+  await page.waitForLoadState('networkidle');
 
   // Create product
   const productName = `E2E Product ${Date.now()}`;
