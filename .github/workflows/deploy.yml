@@ -176,16 +176,19 @@ jobs:
             sleep 10
 
             # Verify backend health
-            for i in {1..30}; do
+            MAX_ATTEMPTS=30
+            ATTEMPT=0
+            while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+              ATTEMPT=$((ATTEMPT + 1))
               if curl -f -s http://localhost:8080/api/up | grep -q '"status":"up"'; then
                 echo "Backend is healthy"
                 break
               fi
-              if [ $i -eq 30 ]; then
-                echo "Backend health check failed"
+              if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+                echo "Backend health check failed after $MAX_ATTEMPTS attempts"
                 exit 1
               fi
-              echo "Waiting for backend... ($i/30)"
+              echo "Waiting for backend... ($ATTEMPT/$MAX_ATTEMPTS)"
               sleep 2
             done
 
