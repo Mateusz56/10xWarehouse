@@ -31,13 +31,13 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:4321',
     
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: process.env.CI ? 'off' : 'on-first-retry',
     
     /* Screenshot on failure */
-    screenshot: 'only-on-failure',
+    screenshot: process.env.CI ? 'off' : 'only-on-failure',
     
     /* Video on failure */
-    video: 'retain-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
   },
 
   /* Configure projects for major browsers */
