@@ -16,10 +16,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore 10xWarehouseNet/10xWarehouseNet.sln
 
       - name: Build
-        run: dotnet build --no-restore -c Release
+        run: dotnet build 10xWarehouseNet/10xWarehouseNet.sln --no-restore -c Release
 
       - name: Run unit tests with coverage
         working-directory: 10xWarehouseNet.Tests
