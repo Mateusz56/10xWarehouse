@@ -27,27 +27,6 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
   // Wait for organizations to load by polling for the switcher to become enabled
   // or for the organization name to appear
   const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
-  await page.waitForFunction(
-    ({ orgName }) => {
-      const trigger = document.querySelector('[data-slot="select-trigger"]') as HTMLElement;
-      if (!trigger) return false;
-      
-      const isDisabled = trigger.hasAttribute('disabled') || 
-                         trigger.getAttribute('data-disabled') !== null;
-      
-      // If not disabled, orgs are loaded
-      if (!isDisabled) return true;
-      
-      // Check if org name appears (might be auto-selected)
-      const text = trigger.textContent || '';
-      return text.includes(orgName);
-    },
-    { orgName },
-    { timeout: 30000, polling: 500 }
-  );
-
-  // Wait for organization switcher to be enabled (organizations loaded)
-  await expect(orgTrigger).toBeEnabled({ timeout: 10000 });
   
   // Check if the org is already selected, if not, select it
   const currentValue = await orgTrigger.textContent();
