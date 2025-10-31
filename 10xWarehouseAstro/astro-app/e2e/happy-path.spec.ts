@@ -19,26 +19,35 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
   await expect(page.getByRole('heading', { name: 'Create Organization' })).toBeVisible();
   await page.getByPlaceholder('Acme Inc.').fill(orgName);
   
-  // Set up response wait before clicking (to catch response after page reload)
-  const responsePromise = page.waitForResponse(
-    response => response.url().includes('/api/users/me') && response.status() === 200,
-    { timeout: 30000 }
-  );
-  
   await page.getByRole('button', { name: 'Create' }).click();
 
   // Wait for page reload after organization creation
   await page.waitForLoadState('networkidle');
   
-  // Wait for the API call that fetches user data (which includes organizations)
-  await responsePromise;
-  
-  // Additional wait for Vue to update the UI with the organizations
-  await page.waitForTimeout(1000);
+  // Wait for organizations to load by polling for the switcher to become enabled
+  // or for the organization name to appear
+  const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
+  await page.waitForFunction(
+    ({ orgName }) => {
+      const trigger = document.querySelector('[data-slot="select-trigger"]') as HTMLElement;
+      if (!trigger) return false;
+      
+      const isDisabled = trigger.hasAttribute('disabled') || 
+                         trigger.getAttribute('data-disabled') !== null;
+      
+      // If not disabled, orgs are loaded
+      if (!isDisabled) return true;
+      
+      // Check if org name appears (might be auto-selected)
+      const text = trigger.textContent || '';
+      return text.includes(orgName);
+    },
+    { orgName },
+    { timeout: 30000, polling: 500 }
+  );
 
   // Wait for organization switcher to be enabled (organizations loaded)
-  const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
-  await expect(orgTrigger).toBeEnabled({ timeout: 15000 });
+  await expect(orgTrigger).toBeEnabled({ timeout: 10000 });
   
   // Check if the org is already selected, if not, select it
   const currentValue = await orgTrigger.textContent();
