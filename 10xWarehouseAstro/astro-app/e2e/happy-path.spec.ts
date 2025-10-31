@@ -22,16 +22,31 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
 
   // Wait for page reload after organization creation
   await page.waitForLoadState('networkidle');
+  
+  // Wait for "Loading organizations..." message to disappear, indicating orgs are loaded
+  await page.waitForFunction(
+    () => {
+      const loadingMsg = Array.from(document.querySelectorAll('p.text-sm.text-gray-500'))
+        .find(p => p.textContent?.includes('Loading organizations'));
+      return !loadingMsg;
+    },
+    { timeout: 20000 }
+  );
 
   // Wait for organization switcher to be enabled (organizations loaded)
   const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
   await expect(orgTrigger).toBeEnabled({ timeout: 10000 });
-  await orgTrigger.click();
-  const orgOption = page.locator('[data-slot="select-item"]').filter({ hasText: orgName });
-  await orgOption.waitFor({ state: 'visible' });
-  await orgOption.click();
-  // Wait for organization switch to complete
-  await page.waitForLoadState('networkidle');
+  
+  // Check if the org is already selected, if not, select it
+  const currentValue = await orgTrigger.textContent();
+  if (!currentValue?.includes(orgName)) {
+    await orgTrigger.click();
+    const orgOption = page.locator('[data-slot="select-item"]').filter({ hasText: orgName });
+    await orgOption.waitFor({ state: 'visible' });
+    await orgOption.click();
+    // Wait for organization switch to complete
+    await page.waitForLoadState('networkidle');
+  }
 
   // Create product
   const productName = `E2E Product ${Date.now()}`;
