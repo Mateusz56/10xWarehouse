@@ -96,13 +96,18 @@ jobs:
           sed -i "s|REPO_PLACEHOLDER|${{ github.repository }}|g" docker-compose.yml
 
       - name: Copy docker-compose and nginx config
+        env:
+          VM_USER: ${{ secrets.AZURE_VM_USER }}
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml nginx.conf ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }}:/home/${{ secrets.AZURE_VM_USER }}/10xWarehouse/
+          scp -o StrictHostKeyChecking=no docker-compose.yml nginx.conf "$VM_USER@$VM_HOST:/home/$VM_USER/10xWarehouse/"
 
       - name: Deploy to Azure VM
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
+          VM_USER: ${{ secrets.AZURE_VM_USER }}
+          VM_HOST: ${{ secrets.AZURE_VM_HOST }}
           IMAGE_BACKEND: ${{ env.IMAGE_NAME_BACKEND }}:latest
           IMAGE_FRONTEND: ${{ env.IMAGE_NAME_FRONTEND }}:latest
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -112,9 +117,9 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'postgres' }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.AZURE_VM_USER }}@${{ secrets.AZURE_VM_HOST }} << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" << ENDSSH
             set -e
-            cd /home/${{ secrets.AZURE_VM_USER }}/10xWarehouse
+            cd "/home/$VM_USER/10xWarehouse"
 
             # Login to GHCR using GITHUB_TOKEN
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
