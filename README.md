@@ -42,9 +42,15 @@ To get a local copy up and running, please follow these steps.
 
 ### Prerequisites
 
+**Option 1: Native Development**
 -   Node.js (v18 or higher recommended)
 -   .NET SDK
 -   PostgreSQL
+-   A free Supabase account for authentication.
+
+**Option 2: Docker/Podman Development**
+-   Docker or Podman installed
+-   Docker Compose or Podman Compose
 -   A free Supabase account for authentication.
 
 ### Installation & Setup
@@ -55,28 +61,101 @@ To get a local copy up and running, please follow these steps.
     cd 10xWarehouse
     ```
 
-2.  **Configure Environment Variables:**
-    You will need to configure environment variables for both the frontend and backend. It's recommended to create `.env` files in the respective project directories.
+### Running with Docker/Podman
 
-    -   **Backend (`10xWarehouseNet/.env`):**
-        ```env
-        DB_CONNECTION_STRING="Your_PostgreSQL_Connection_String"
-        SUPABASE_JWT_SECRET="Your_Supabase_JWT_Secret"
-        ```
+The easiest way to get started is using Docker or Podman with Docker Compose:
 
-    -   **Frontend (`10xWarehouseAstro/vue/.env`):**
-        ```env
-        PUBLIC_SUPABASE_URL="Your_Supabase_Project_URL"
-        PUBLIC_SUPABASE_ANON_KEY="Your_Supabase_Anon_Key"
-        ```
-
-3.  **Setup Frontend:**
+1.  **Create environment file:**
+    Copy the template file and fill in your Supabase credentials:
     ```sh
-    cd 10xWarehouseAstro/vue
+    cp env.template .env
+    ```
+    Edit `.env` and add your Supabase configuration:
+    ```env
+    SUPABASE_URL=https://your-project-id.supabase.co
+    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+    SUPABASE_ANON_KEY=your-supabase-anon-key
+    ```
+
+2.  **Start all services:**
+    
+    **Using Docker:**
+    ```sh
+    docker compose -f docker-compose.local.yml up -d
+    ```
+    
+    **Using Podman:**
+    ```sh
+    podman compose -f docker-compose.local.yml up -d
+    ```
+
+    This will start:
+    - PostgreSQL database
+    - Backend API server
+    - Frontend application
+    - Nginx reverse proxy
+
+3.  **Access the application:**
+    - Frontend: `http://localhost`
+    - Backend API: `http://localhost/api`
+    - Direct backend access (for debugging): `http://localhost:8080`
+
+4.  **View logs:**
+    ```sh
+    # Docker
+    docker compose -f docker-compose.local.yml logs -f
+    
+    # Podman
+    podman compose -f docker-compose.local.yml logs -f
+    ```
+
+5.  **Stop services:**
+    ```sh
+    # Docker
+    docker compose -f docker-compose.local.yml down
+    
+    # Podman
+    podman compose -f docker-compose.local.yml down
+    ```
+
+**Note:** Database migrations run automatically when the backend starts. The database persists in a Docker volume named `pgdata`.
+
+### Running with Native Development
+
+If you prefer to run services natively without Docker:
+
+1.  **Configure Environment Variables:**
+
+    -   **Backend Configuration:**
+        The backend uses `appsettings.json` for configuration. You can override values using environment variables or modify `appsettings.json` directly. The default connection string in `appsettings.json` points to `localhost:5432`.
+        
+        Set these environment variables (or update `appsettings.json`):
+        ```bash
+        # For PostgreSQL connection (if different from default)
+        ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres"
+        
+        # Required Supabase configuration
+        Supabase__Url="https://your-project-id.supabase.co"
+        Supabase__ServiceRoleKey="your-service-role-key-here"
+        ```
+        
+        **Note:** .NET uses double underscores (`__`) for nested configuration in environment variables.
+
+    -   **Frontend Configuration:**
+        Create a `.env` file in the `10xWarehouseAstro/astro-app` directory:
+        ```env
+        PUBLIC_SUPABASE_URL="https://your-project-id.supabase.co"
+        PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+        PUBLIC_API_BASE_URL="http://localhost:5000/api"
+        ```
+
+2.  **Setup Frontend:**
+    ```sh
+    cd 10xWarehouseAstro/astro-app
     npm install
     ```
 
-4.  **Setup Backend:**
+3.  **Setup Backend:**
     Navigate to the backend directory and restore the .NET dependencies.
     ```sh
     cd 10xWarehouseNet
@@ -87,19 +166,19 @@ To get a local copy up and running, please follow these steps.
     dotnet ef database update
     ```
 
-### Running the Application
+4.  **Run the Application:**
 
-1.  **Run the Backend Server (from the `10xWarehouseNet` directory):**
-    ```sh
-    dotnet run
-    ```
-    The API will be available at `http://localhost:5000` (or as configured).
+    -   **Backend Server (from the `10xWarehouseNet` directory):**
+        ```sh
+        dotnet run
+        ```
+        The API will be available at `http://localhost:5000` (or as configured).
 
-2.  **Run the Frontend Development Server (from the `10xWarehouseAstro/vue` directory):**
-    ```sh
-    npm run dev
-    ```
-    The application will be available at `http://localhost:4321`.
+    -   **Frontend Development Server (from the `10xWarehouseAstro/astro-app` directory):**
+        ```sh
+        npm run dev
+        ```
+        The application will be available at `http://localhost:4321`.
 
 ---
 
