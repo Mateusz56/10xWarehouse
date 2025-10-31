@@ -141,7 +141,7 @@ jobs:
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
             # Stop all containers
-            docker compose down || true
+            docker-compose down || true
 
             # Set environment variables for docker-compose
             export SUPABASE_URL="$SUPABASE_URL"
@@ -152,10 +152,10 @@ jobs:
             export POSTGRES_DB="$POSTGRES_DB"
 
             # Pull latest images
-            docker compose pull
+            docker-compose pull
 
             # Start all containers
-            docker compose up -d
+            docker-compose up -d
 
             # Wait for services to be healthy
             echo "Waiting for services to start..."
