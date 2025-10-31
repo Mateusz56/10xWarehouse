@@ -45,8 +45,8 @@ Add these secrets in your repository (**Settings** → **Secrets and variables**
 
 | Secret Name | Description | Example |
 |------------|-------------|---------|
-| `AZURE_VM_HOST` | Azure VM IP address or hostname | `20.123.45.67` |
-| `AZURE_VM_USER` | SSH username | `azureuser` |
+| `AZURE_VM_HOST` | Azure VM IP address or hostname | `203.0.113.1` (example IP) |
+| `AZURE_VM_USER` | SSH username | `your-ssh-username` |
 | `AZURE_VM_SSH_KEY` | Contents of your `azure_vm.pem` file | `-----BEGIN RSA PRIVATE KEY-----...` |
 | `SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
@@ -67,7 +67,7 @@ docker --version
 docker compose version
 
 # Create deployment directory
-mkdir -p /home/azureuser/10xWarehouse
+mkdir -p /home/your-username/10xWarehouse
 ```
 
 **Required:**
@@ -173,12 +173,12 @@ If a deployment fails or issues are discovered:
 
 1. SSH into Azure VM:
    ```bash
-   ssh -i azure_vm.pem azureuser@<VM_IP>
+   ssh -i azure_vm.pem your-username@<VM_IP>
    ```
 
 2. Navigate to deployment directory:
    ```bash
-   cd /home/azureuser/10xWarehouse
+   cd /home/your-username/10xWarehouse
    ```
 
 3. Pull previous image version:
@@ -226,8 +226,8 @@ The workflow will fail if health checks don't pass, preventing broken deployment
 
 2. **Azure VM**:
    ```bash
-   ssh -i azure_vm.pem azureuser@<VM_IP>
-   cd /home/azureuser/10xWarehouse
+   ssh -i azure_vm.pem your-username@<VM_IP>
+   cd /home/your-username/10xWarehouse
    docker compose logs -f
    ```
 

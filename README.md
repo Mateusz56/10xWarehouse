@@ -10,6 +10,7 @@ A simple, modern warehouse management system for small businesses. This project 
 -   [Tech Stack](#tech-stack)
 -   [Getting Started Locally](#getting-started-locally)
 -   [Available Scripts](#available-scripts)
+-   [CI/CD & Deployment](#cicd--deployment)
 -   [Project Scope](#project-scope)
 -   [Project Status](#project-status)
 -   [License](#license)
@@ -116,6 +117,55 @@ To get a local copy up and running, please follow these steps.
 -   `dotnet run`: Starts the backend API server.
 -   `dotnet build`: Compiles the project.
 -   `dotnet test`: Runs the test suite.
+
+---
+
+## CI/CD & Deployment
+
+The project includes a fully automated CI/CD pipeline that builds, tests, and deploys the application on every push to the `main` branch.
+
+### Overview
+
+The deployment pipeline consists of three main components:
+
+1. **GitHub Actions Workflow** (`.github/workflows/deploy.yml`)
+   - Automatically triggers on push to `main` branch
+   - Builds Docker images for both backend and frontend
+   - Pushes images to GitHub Container Registry (GHCR)
+   - Deploys to Azure VM via SSH
+
+2. **GitHub Container Registry (GHCR)**
+   - Stores pre-built Docker images
+   - Images are tagged with `latest` and commit SHA for traceability
+   - Uses built-in `GITHUB_TOKEN` for authentication
+
+3. **Azure VM Deployment**
+   - Receives updated configuration files via SCP
+   - Pulls latest images from GHCR
+   - Stops existing containers and starts new ones
+   - Verifies deployment health before completing
+
+### Deployment Process
+
+1. **Build Phase**: Docker images are built and pushed to GHCR with both `latest` and commit SHA tags
+2. **Deploy Phase**: Configuration files are copied to the Azure VM, containers are stopped and restarted with new images
+3. **Health Check**: The deployment verifies the backend health endpoint before marking the deployment as successful
+
+### Prerequisites
+
+To set up the CI/CD pipeline, you'll need:
+
+- GitHub repository with Actions enabled
+- GitHub Secrets configured (Azure VM credentials, Supabase keys, database credentials)
+- Azure VM with Docker and Docker Compose installed
+- SSH access configured for the Azure VM
+
+### Manual Deployment
+
+The workflow can be manually triggered via GitHub Actions UI:
+- Go to **Actions** → **Build and Deploy** → **Run workflow**
+
+For detailed setup instructions, troubleshooting, and rollback procedures, see [`.ai/cicd-deployment-plan.md`](.ai/cicd-deployment-plan.md).
 
 ---
 
