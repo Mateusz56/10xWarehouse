@@ -30,8 +30,8 @@ jobs:
         working-directory: 10xWarehouseAstro/astro-app
         run: npx playwright install --with-deps chromium
 
-      - name: Start backend (docker-compose)
-        run: docker compose up -d
+      - name: Start backend and database (docker-compose)
+        run: docker compose -f docker-compose.e2e.yml up -d postgres backend
 
       - name: Wait for backend
         run: |
