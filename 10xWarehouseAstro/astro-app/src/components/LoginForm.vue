@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { checkHealth } from '@/lib/api'
 
 const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const error = ref('')
+
+onMounted(async () => {
+  try {
+    const healthResult = await checkHealth()
+    console.log('Backend health check:', healthResult)
+  } catch (error) {
+    console.error('Backend health check failed:', error)
+  }
+})
 
 async function handleLogin() {
   error.value = ''

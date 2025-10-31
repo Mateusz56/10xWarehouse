@@ -70,6 +70,19 @@ async function fetchWrapper<T>(url: string, options: RequestInit = {}): Promise<
   return response.json() as Promise<T>;
 }
 
+// Health check endpoint (doesn't require authentication)
+export async function checkHealth(): Promise<{ status: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/up`);
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Health check error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
 export const api = {
   async getUserData(): Promise<UserDto> {
     return fetchWrapper<UserDto>(`${API_BASE_URL}/users/me`);
