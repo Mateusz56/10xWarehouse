@@ -5,7 +5,6 @@ const E2E_EMAIL = 'e2e@example.e2e';
 const E2E_PASSWORD = 'e2ee2e';
 
 test('Happy path: login, org, product, warehouse, locations, add+move stock, view log', async ({ page }) => {
-  test.setTimeout(120000); // 2 minutes for this long-running test
   // Login
   const login = new LoginPage(page);
   await login.goto();
