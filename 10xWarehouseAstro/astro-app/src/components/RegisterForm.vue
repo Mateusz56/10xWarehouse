@@ -55,7 +55,7 @@ async function handleRegister() {
       return
     }
 
-    success.value = 'Registration successful! Please check your email to verify your account.'
+    success.value = 'Registration successful! You will be redirected to the login page in 2 seconds.'
     // Clear form
     email.value = ''
     password.value = ''
