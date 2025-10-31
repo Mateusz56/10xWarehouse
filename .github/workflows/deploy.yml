@@ -158,14 +158,12 @@ jobs:
             docker-compose down || true
 
             # Create .env file for docker-compose
-            cat > .env << INNEREOF
-SUPABASE_URL=$SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
-SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
-POSTGRES_USER=$POSTGRES_USER
-POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-POSTGRES_DB=$POSTGRES_DB
-INNEREOF
+            printf 'SUPABASE_URL=%s\n' "$SUPABASE_URL" > .env
+            printf 'SUPABASE_SERVICE_ROLE_KEY=%s\n' "$SUPABASE_SERVICE_ROLE_KEY" >> .env
+            printf 'SUPABASE_ANON_KEY=%s\n' "$SUPABASE_ANON_KEY" >> .env
+            printf 'POSTGRES_USER=%s\n' "$POSTGRES_USER" >> .env
+            printf 'POSTGRES_PASSWORD=%s\n' "$POSTGRES_PASSWORD" >> .env
+            printf 'POSTGRES_DB=%s\n' "$POSTGRES_DB" >> .env
 
             # Pull latest images
             docker-compose pull
