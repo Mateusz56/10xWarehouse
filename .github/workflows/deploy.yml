@@ -11,6 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  REPO_LOWER: ${{ github.repository }}
   IMAGE_NAME_BACKEND: ghcr.io/${{ github.repository }}/backend
   IMAGE_NAME_FRONTEND: ghcr.io/${{ github.repository }}/frontend
 
@@ -35,6 +36,14 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository name for image names
+        id: repo-lower
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME_BACKEND=ghcr.io/${REPO_LOWER}/backend" >> $GITHUB_ENV
+          echo "IMAGE_NAME_FRONTEND=ghcr.io/${REPO_LOWER}/frontend" >> $GITHUB_ENV
+          echo "REPO_LOWER=${REPO_LOWER}" >> $GITHUB_ENV
 
       - name: Extract metadata for backend
         id: meta-backend
@@ -108,8 +117,10 @@ jobs:
 
       - name: Prepare docker-compose for deployment
         run: |
-          # Replace placeholder with actual repository path
-          sed -i "s|REPO_PLACEHOLDER|${{ github.repository }}|g" docker-compose.yml
+          # Replace placeholder with actual repository path (lowercased for Docker image names)
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          sed -i "s|REPO_PLACEHOLDER|${REPO_LOWER}|g" docker-compose.yml
+          echo "Using repository: ${REPO_LOWER}"
 
       - name: Copy docker-compose and nginx config
         env:
@@ -124,8 +135,6 @@ jobs:
           GHCR_USER: ${{ github.actor }}
           VM_USER: ${{ secrets.AZURE_VM_USER }}
           VM_HOST: ${{ secrets.AZURE_VM_HOST }}
-          IMAGE_BACKEND: ${{ env.IMAGE_NAME_BACKEND }}:latest
-          IMAGE_FRONTEND: ${{ env.IMAGE_NAME_FRONTEND }}:latest
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -133,6 +142,11 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB || 'postgres' }}
         run: |
+          # Lowercase repository name for image names
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_BACKEND="ghcr.io/${REPO_LOWER}/backend:latest"
+          IMAGE_FRONTEND="ghcr.io/${REPO_LOWER}/frontend:latest"
+          
           ssh -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" << ENDSSH
             set -e
             cd "/home/$VM_USER/10xWarehouse"
@@ -143,13 +157,15 @@ jobs:
             # Stop all containers
             docker-compose down || true
 
-            # Set environment variables for docker-compose
-            export SUPABASE_URL="$SUPABASE_URL"
-            export SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY"
-            export SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
-            export POSTGRES_USER="$POSTGRES_USER"
-            export POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
-            export POSTGRES_DB="$POSTGRES_DB"
+            # Create .env file for docker-compose
+            cat > .env << INNEREOF
+SUPABASE_URL=$SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+POSTGRES_USER=$POSTGRES_USER
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+POSTGRES_DB=$POSTGRES_DB
+INNEREOF
 
             # Pull latest images
             docker-compose pull
