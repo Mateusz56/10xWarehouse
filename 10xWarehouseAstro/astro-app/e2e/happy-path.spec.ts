@@ -18,24 +18,27 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
   await page.getByRole('button', { name: 'Create Organization' }).click();
   await expect(page.getByRole('heading', { name: 'Create Organization' })).toBeVisible();
   await page.getByPlaceholder('Acme Inc.').fill(orgName);
+  
+  // Set up response wait before clicking (to catch response after page reload)
+  const responsePromise = page.waitForResponse(
+    response => response.url().includes('/api/users/me') && response.status() === 200,
+    { timeout: 30000 }
+  );
+  
   await page.getByRole('button', { name: 'Create' }).click();
 
   // Wait for page reload after organization creation
   await page.waitForLoadState('networkidle');
   
-  // Wait for "Loading organizations..." message to disappear, indicating orgs are loaded
-  await page.waitForFunction(
-    () => {
-      const loadingMsg = Array.from(document.querySelectorAll('p.text-sm.text-gray-500'))
-        .find(p => p.textContent?.includes('Loading organizations'));
-      return !loadingMsg;
-    },
-    { timeout: 20000 }
-  );
+  // Wait for the API call that fetches user data (which includes organizations)
+  await responsePromise;
+  
+  // Additional wait for Vue to update the UI with the organizations
+  await page.waitForTimeout(1000);
 
   // Wait for organization switcher to be enabled (organizations loaded)
   const orgTrigger = page.locator('[data-slot="select-trigger"]').first();
-  await expect(orgTrigger).toBeEnabled({ timeout: 10000 });
+  await expect(orgTrigger).toBeEnabled({ timeout: 15000 });
   
   // Check if the org is already selected, if not, select it
   const currentValue = await orgTrigger.textContent();
