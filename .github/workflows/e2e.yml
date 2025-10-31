@@ -36,15 +36,10 @@ jobs:
         run: |
           echo "Waiting for backend to be ready..."
           for i in {1..60}; do
-            # Check if backend is responding (even 404/401 means it's up)
-            if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:8080/ | grep -qE "^(200|404|401|403)$"; then
-              echo "Backend is responding"
-              # Verify it's actually the API by checking a simple endpoint
-              status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/organizations || echo "000")
-              if [ "$status" != "000" ]; then
-                echo "Backend API is ready (status: $status)"
-                break
-              fi
+            # Check the health endpoint
+            if curl -f -s http://localhost:8080/api/up | grep -q '"status":"up"'; then
+              echo "Backend is up and ready"
+              break
             fi
             echo "Attempt $i/60: Backend not ready yet..."
             sleep 2
