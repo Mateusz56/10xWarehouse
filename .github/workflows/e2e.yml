@@ -52,7 +52,7 @@ jobs:
 
       - name: Run E2E
         working-directory: 10xWarehouseAstro/astro-app
-        run: npm run test:e2e -- --reporter=github
+        run: npm run test:e2e -- --reporter=github --reporter=html
 
       - name: Upload Playwright report
         if: always()
@@ -60,4 +60,5 @@ jobs:
         with:
           name: playwright-report
           path: 10xWarehouseAstro/astro-app/playwright-report
+          retention-days: 7
           if-no-files-found: ignore

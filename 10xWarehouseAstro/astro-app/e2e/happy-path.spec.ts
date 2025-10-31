@@ -62,7 +62,7 @@ test('Happy path: login, org, product, warehouse, locations, add+move stock, vie
   // Add stock to first location
   await page.getByRole('link', { name: 'Inventory' }).click();
   await expect(page.getByRole('heading', { name: 'Inventory Summary' })).toBeVisible();
-  await page.getByRole('button', { name: 'Add Stock' }).click();
+  await page.locator('#AddStock').click();
   await expect(page.getByRole('heading', { name: 'Add Stock' })).toBeVisible();
   await page.getByText('Select a product').click();
   await page.locator('[data-slot="select-item"]').filter({ hasText: productName }).first().click();
