@@ -12,6 +12,7 @@ jobs:
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
       PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      PUBLIC_API_BASE_URL: http://localhost:8080/api
       PLAYWRIGHT_BACKEND_URL: http://localhost:8080/api
     steps:
       - uses: actions/checkout@v4
