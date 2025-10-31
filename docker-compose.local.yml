@@ -2,24 +2,26 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 10
 
   backend:
-    image: ghcr.io/REPO_PLACEHOLDER/backend:latest
+    build:
+      context: 10xWarehouseNet
+      dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-postgres};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=postgres;Username=postgres;Password=postgres
       Supabase__Url: ${SUPABASE_URL}
       Supabase__ServiceRoleKey: ${SUPABASE_SERVICE_ROLE_KEY}
     depends_on:
@@ -27,9 +29,17 @@ services:
         condition: service_healthy
     expose:
       - "8080"
+    ports:
+      - "8080:8080"  # Temporary: Direct backend access
 
   frontend:
-    image: ghcr.io/REPO_PLACEHOLDER/frontend:latest
+    build:
+      context: 10xWarehouseAstro/astro-app
+      dockerfile: Dockerfile
+      args:
+        API_BASE_URL: /api
+        SUPABASE_URL: ${SUPABASE_URL}
+        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     environment:
       PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
       PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
